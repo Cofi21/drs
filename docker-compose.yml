@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: maindb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: ftn
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysqldb:/var/lib/mysql
+
+  server:
+    build: ./server
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./server:/app
+    depends_on:
+      - mysql
+
+volumes:
+  mysqldb:
