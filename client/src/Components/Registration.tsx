@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import '../Styles/registration.css'; // Import your CSS file
 import { useNavigate } from 'react-router-dom'; 
 
-const RegistrationPage = () => {
+function RegistrationPage()  {
   // State to store registration data
   const [registrationData, setRegistrationData] = useState({
     firstName: '',
@@ -17,7 +17,7 @@ const RegistrationPage = () => {
   const navigate = useNavigate();
 
   // Function to handle input changes
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: { target: { name: any; value: any; }; }) => { // ovo se treba namestiti samo sam uradio ovako zbog push - a
     const { name, value } = e.target;
     setRegistrationData((prevData) => ({
       ...prevData,
@@ -40,7 +40,7 @@ const RegistrationPage = () => {
 
       if (response.ok) {
         console.log('Registration successful:', data.message);
-        navigate.push('/');
+        navigate('/');
         // Optionally, you can redirect to the login page or perform other actions
       } else {
         console.error('Registration failed:', data.message);
@@ -49,15 +49,23 @@ const RegistrationPage = () => {
     } catch (error) {
       console.error('Error during registration:', error);
       // Handle network or other errors during registration
+
+
     }
   };
+
+  const handleCancel = () => {
+    // Redirect to the home page or any other desired page on cancel
+    navigate('/');
+  };
+
   return (
     <div className="registration-container">
        <p id="naslov">Dobro došli na forum</p>
       <h2>Registracija</h2>
       <form className="registration-form">
         <input
-          class="input-login"
+          className="input-login"
           type="text"
           name="firstName"
           placeholder="Ime"
@@ -65,7 +73,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="text"
           name="lastName"
           placeholder="Prezime"
@@ -73,7 +81,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="text"
           name="address"
           placeholder="Adresa"
@@ -81,7 +89,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="text"
           name="city"
           placeholder="Grad"
@@ -89,7 +97,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="text"
           name="country"
           placeholder="Drzava"
@@ -97,7 +105,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="tel"
           name="phoneNumber"
           placeholder="Broj telefona"
@@ -105,7 +113,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="email"
           name="email"
           placeholder="Email"
@@ -113,7 +121,7 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
         <input
-          class="input-login"
+          className="input-login"
           type="password"
           name="password"
           placeholder="Lozinka"
@@ -121,7 +129,11 @@ const RegistrationPage = () => {
           onChange={handleInputChange}
         />
       </form>
-      <button id="btn-reg" onClick={handleRegistration}>Registracija</button>
+      <div className="button-container">
+        <button id="btn-reg" onClick={handleRegistration}>Registracija</button>
+        <button id="btn-cancel" onClick={handleCancel}>Odustani</button>
+      </div>
+
     </div>
   );
 };

@@ -1,0 +1,148 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    color: #ddd;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #333;
+    margin-top: 50px;
+    border-radius: 5px;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #ff4500;
+    margin-bottom: 20px;
+  }
+  
+  .logout-btn {
+    text-align: right;
+    margin-bottom: 20px;
+    display: flex;
+    height: 40px;
+    justify-content: right;
+  }
+  
+  .media {
+    margin-top: 100px;
+  }
+  
+
+  #create-post{
+    font-size: 16px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    width: 100%;
+    height: 100px;
+    border: 1px solid #555; /* Darker border color */
+    background-color: #222; /* Darker background color for input elements */
+    color: #ddd;
+  }
+    
+
+  .auth-buttons {
+   display: flex;
+   justify-content: space-between;
+   margin-bottom: 20px;
+ }
+ 
+ .auth-buttons-left {
+   display: flex;
+   height: 40px;
+ }
+ 
+ .auth-btn {
+   cursor: pointer;
+   padding: 10px;
+   font-size: 16px;
+   background-color: #007bff; /* Green color */
+   color: #fff;
+   border: none;
+   border-radius: 5px;
+   text-decoration: none;
+   margin-right: 10px; /* Add some space between buttons */
+ }
+ 
+ .auth-btn:hover {
+   background-color: #0056b3;
+ }
+ 
+ .auth-buttons-right {
+   display: flex;
+ }
+
+  
+  #search-bar {
+    width: 30%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #555; /* Darker border color */
+    border-radius: 4px;
+    background-color: #222; /* Darker background color for input elements */
+    color: #ddd;
+  }
+  
+  .btn {
+    cursor: pointer;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    background-color: #007bff; /* Blue color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .search-btn {
+    margin-left: 10px;
+  }
+  
+  #create-post-btn {
+    margin-left: 10px;
+  }
+
+  
+  #post-section {
+    background-color: #222;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow-y: auto;
+    max-height: 400px;
+  }
+  
+  .post {
+    border-bottom: 1px solid #444;
+    padding: 10px;
+    color: #fff;
+  }
+  
+  .like-dislike-buttons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+  }
+  
+  .like, .dislike {
+    cursor: pointer;
+    color: #ddd;
+    margin-left: 10px; /* Add some space between buttons */
+    margin-right: 10px;
+  }
+  
+  .like:hover, .dislike:hover {
+    text-decoration: underline;
+    color: #ff4500;
+  }
+
+  
