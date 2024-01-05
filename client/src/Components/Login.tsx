@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import '../Styles/login.css';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from './AuthContext';
 
 
 // Functional component for the login form
 function LoginPage() {
+
+  const { login } = useAuth();
+
 
   const [credentials, setCredentials] = useState({
     username: '',
@@ -39,6 +42,7 @@ function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(credentials),
       });
 
@@ -46,8 +50,9 @@ function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setLoginStatus('Login successful');
-        // You can redirect the user or perform other actions here
+        const userData = { username: credentials.username };
+        login(userData);    
+        navigate('/');
       } else {
         setLoginStatus(`Login failed: ${data.message}`);
       }
