@@ -1,24 +1,27 @@
+# app.py
 from flask import Flask
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
+from routes import auth_blueprint  # Correct import path
+from database import db
+#from routes.user_routes import user_blueprint
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True)  
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-# Update your Python app's database connection settings
 DATABASE_URI = "mysql://root:my-secret-pw@mysql/maindb"
-# mysql://username:password@host:port/database_name
-
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+db.init_app(app)
 
-# Import routes after initializing the Flask app and SQLAlchemy
-from routes import login, register
+app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+
+    # Import routes after initializing the Flask app and SQLAlchemy
+    from routes import login, register
 
     app.run(debug=True, host="0.0.0.0", port=3003)

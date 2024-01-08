@@ -1,25 +1,27 @@
-from flask import request, jsonify, redirect, url_for
-from app import app, db
-from models import User
+from flask import Blueprint, request, jsonify, redirect
+from flask_cors import cross_origin
+from database import User
 
-# Login route
-@app.route('/login', methods=['POST'])
+auth_blueprint = Blueprint('auth', __name__)
+
+@auth_blueprint.route('/login', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def login():
-     data = request.get_json()
+    data = request.get_json()
 
-     username = data.get('username')
-     password = data.get('password')
+    username = data.get('username')
+    password = data.get('password')
 
-     user = User.query.filter_by(email=username, password=password).first()
+    user = User.query.filter_by(email=username, password=password).first()
 
-     if user:
-         return jsonify({'message': 'Successful login'}), 200
-     else:
-         return jsonify({'message': 'Invalid username or password'}), 401
+    if user:
+        response = jsonify({'message': 'Successful login'})
+        return response, 200
+    else:
+        response = jsonify({'message': 'Invalid username or password'})
+        return response, 401
 
-
-# Registration route
-@app.route('/registration', methods=['POST'])
+@auth_blueprint.route('/registration', methods=['POST'])
 def register():
     registration_data = request.json
 
@@ -45,10 +47,9 @@ def register():
         db.session.commit()
 
         # Redirect to the login page after successful registration
-        return redirect('/login')
+        return redirect('/auth/login')
 
     except Exception as e:
         # Handle any unexpected errors during registration
         print('Error during registration:', str(e))
         return jsonify({'message': 'Error during registration'}), 500
-        

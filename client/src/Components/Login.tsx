@@ -35,31 +35,33 @@ function LoginPage() {
     navigate('/');
   };
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch('http://localhost:3003/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(credentials),
+  // Update the URL to match the Flask Blueprint structure
+const handleLogin = async () => {
+  try {
+      const response = await fetch('http://localhost:3003/auth/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(credentials),
       });
 
-      console.log("response ", response )
+      console.log("response ", response)
       const data = await response.json();
 
       if (response.ok) {
-        const userData = { username: credentials.username };
-        login(userData);    
-        navigate('/');
+          const userData = { username: credentials.username };
+          login(userData);
+          navigate('/');
       } else {
-        setLoginStatus(`Login failed: ${data.message}`);
+          setLoginStatus(`Login failed: ${data.message}`);
       }
-    } catch (error) {
+  } catch (error) {
       console.error('Error during login:', error);
-    }
-  };
+  }
+};
+
 
 
 
