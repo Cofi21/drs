@@ -48,10 +48,11 @@ const handleLogin = async () => {
       });
 
       console.log("response ", response)
+
       const data = await response.json();
 
       if (response.ok) {
-          const userData = { username: credentials.username };
+          const userData = { username: credentials.username, id: data.id };
           login(userData);
           navigate('/');
       } else {

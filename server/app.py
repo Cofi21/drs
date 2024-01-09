@@ -4,7 +4,6 @@ from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from routes import auth_blueprint  # Correct import path
 from database import db
-#from routes.user_routes import user_blueprint
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins='http://localhost:5173')
@@ -21,7 +20,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-    from routes import login, register
+    from routes import login, register, get_user_data
     # Import routes after initializing the Flask app and SQLAlchemy
 
     app.run(debug=True, host="0.0.0.0", port=3003)

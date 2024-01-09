@@ -4,6 +4,7 @@ interface User {
   // Define your user type here
   // For example:
   username: string;
+  id: number;
 }
 
 interface AuthContextProps {

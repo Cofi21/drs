@@ -53,3 +53,28 @@ def register():
         # Handle any unexpected errors during registration
         print('Error during registration:', str(e))
         return jsonify({'message': 'Error during registration'}), 500
+
+
+# Assuming you have a route to fetch user data
+@auth_blueprint.route('/userInfo/<int:id>', methods=['GET'])  # Assuming user_id is an integer
+def get_user_data(id):
+
+    print("OVO JE TVOJ ID", id)
+    matching_user = User.query.get(id)
+
+    if matching_user:
+        # Convert SQLAlchemy object to dictionary
+        user_data = {
+            'firstName': matching_user.firstName,
+            'lastName': matching_user.lastName,
+            'address': matching_user.address,
+            'city': matching_user.city,
+            'country': matching_user.country,
+            'phoneNumber': matching_user.phoneNumber,
+            'email': matching_user.email,
+            'password': matching_user.password
+        }
+        # Set the Content-Type header to indicate JSON
+        return jsonify(user_data), 200
+    else:
+        return jsonify({'error': 'User not found'}), 404
