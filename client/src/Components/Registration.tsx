@@ -16,6 +16,8 @@ function RegistrationPage()  {
   });
   const navigate = useNavigate();
 
+  const [registrationStatus, setRegistrationStatus] = useState('');
+
   // Function to handle input changes
   const handleInputChange = (e: { target: { name: any; value: any; }; }) => { // ovo se treba namestiti samo sam uradio ovako zbog push - a
     const { name, value } = e.target;
@@ -28,29 +30,30 @@ function RegistrationPage()  {
   // Function to handle registration submission
   const handleRegistration = async () => {
     try {
-      const response = await fetch('http://localhost:3003/registration', {
+      const response = await fetch('http://localhost:3003/auth/registration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(registrationData),
       });
 
+      console.log("response ", response)
       const data = await response.json();
 
       if (response.ok) {
         console.log('Registration successful:', data.message);
-        navigate('/');
+        navigate('/login');
         // Optionally, you can redirect to the login page or perform other actions
       } else {
+        setRegistrationStatus(`Registration failed: ${data.message}`);
         console.error('Registration failed:', data.message);
         // Handle registration failure, show an error message, etc.
       }
     } catch (error) {
       console.error('Error during registration:', error);
       // Handle network or other errors during registration
-
-
     }
   };
 
@@ -61,14 +64,14 @@ function RegistrationPage()  {
 
   return (
     <div className="registration-container">
-       <p id="naslov">Dobro došli na forum</p>
-      <h2>Registracija</h2>
+       <p id="naslov">Welcome to forum</p>
+      <h2>Sign up</h2>
       <form className="registration-form">
         <input
           className="input-login"
           type="text"
           name="firstName"
-          placeholder="Ime"
+          placeholder="Name"
           value={registrationData.firstName}
           onChange={handleInputChange}
         />
@@ -76,7 +79,7 @@ function RegistrationPage()  {
           className="input-login"
           type="text"
           name="lastName"
-          placeholder="Prezime"
+          placeholder="Last name"
           value={registrationData.lastName}
           onChange={handleInputChange}
         />
@@ -84,7 +87,7 @@ function RegistrationPage()  {
           className="input-login"
           type="text"
           name="address"
-          placeholder="Adresa"
+          placeholder="Address"
           value={registrationData.address}
           onChange={handleInputChange}
         />
@@ -92,7 +95,7 @@ function RegistrationPage()  {
           className="input-login"
           type="text"
           name="city"
-          placeholder="Grad"
+          placeholder="City"
           value={registrationData.city}
           onChange={handleInputChange}
         />
@@ -100,7 +103,7 @@ function RegistrationPage()  {
           className="input-login"
           type="text"
           name="country"
-          placeholder="Drzava"
+          placeholder="Country"
           value={registrationData.country}
           onChange={handleInputChange}
         />
@@ -108,7 +111,7 @@ function RegistrationPage()  {
           className="input-login"
           type="tel"
           name="phoneNumber"
-          placeholder="Broj telefona"
+          placeholder="Phone number"
           value={registrationData.phoneNumber}
           onChange={handleInputChange}
         />
@@ -116,7 +119,7 @@ function RegistrationPage()  {
           className="input-login"
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="E-mail"
           value={registrationData.email}
           onChange={handleInputChange}
         />
@@ -124,16 +127,16 @@ function RegistrationPage()  {
           className="input-login"
           type="password"
           name="password"
-          placeholder="Lozinka"
+          placeholder="Password"
           value={registrationData.password}
           onChange={handleInputChange}
         />
       </form>
       <div className="button-container">
-        <button id="btn-reg" onClick={handleRegistration}>Registracija</button>
-        <button id="btn-cancel" onClick={handleCancel}>Odustani</button>
+        <button id="btn-reg" onClick={handleRegistration}>Sign up</button>
+        <button id="btn-cancel" onClick={handleCancel}>Home</button>
       </div>
-
+      <p>{registrationStatus}</p>
     </div>
   );
 };

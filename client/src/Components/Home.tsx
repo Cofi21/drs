@@ -2,7 +2,7 @@
 import '../Styles/home.css';
 import PostSection from './PostSection';
 import UserSection from './UserSection';
-
+import CreateThread from './CreateThread';
 
 function HomePage() {
 
@@ -33,10 +33,7 @@ function HomePage() {
             <button className="btn search-btn" >Search</button>
         </div>
 
-        <div>
-            <textarea id="create-post" placeholder="Write your post..."></textarea>
-            <button className="btn create-post-btn" >Create Post</button>
-        </div>
+        <CreateThread></CreateThread>
 
         <PostSection></PostSection>
         

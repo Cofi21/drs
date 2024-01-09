@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect
 from flask_cors import cross_origin
-from database import User
+from database import db, User
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -47,7 +47,7 @@ def register():
         db.session.commit()
 
         # Redirect to the login page after successful registration
-        return redirect('/auth/login')
+        return jsonify({'message': 'Registration successful'}), 200
 
     except Exception as e:
         # Handle any unexpected errors during registration

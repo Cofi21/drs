@@ -3,6 +3,7 @@ import LoginPage from './Components/Login';
 import RegistrationPage from './Components/Registration';
 import HomePage from './Components/Home';
 import { AuthProvider } from './Components/AuthContext';
+import UserInfoPage from './Components/UserInfo';
 
 
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
           <Route path="/" element={<HomePage />}/>
           <Route path="/registration" element={<RegistrationPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path='/userInfo' element={<UserInfoPage/>}/>
         </Routes>
       </AuthProvider>
     </Router>

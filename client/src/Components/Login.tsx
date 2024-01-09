@@ -67,15 +67,15 @@ const handleLogin = async () => {
 
   return (
     <div className="login-container">
-      <p id="naslov">Dobro došli na forum</p>
-      <h2>Prijava</h2>
+      <p id="naslov">Welcome to forum</p>
+      <h2>Login</h2>
       <br />
       <form className="login-form">
         <input
           className="input-login"
           type="text"
           name="username"
-          placeholder="Email"
+          placeholder="e-mail"
           value={credentials.username}
           onChange={handleInputChange}
         />
@@ -84,20 +84,20 @@ const handleLogin = async () => {
           className="input-login"
           type="password"
           name="password"
-          placeholder="Lozinka"
+          placeholder="password"
           value={credentials.password}
           onChange={handleInputChange}
         />
       </form>
       <div className="button-container">
         <button id="login-btn" onClick={handleLogin}>
-          Prijava
+          Login
         </button>
         <button id="register-btn" onClick={handleRegistration}>
-          Registracija
+          Sign up
         </button>
         <button id="cancel-btn" onClick={handleCancel}>
-          Odustani
+          Home
         </button>
       </div>
       <p>{loginStatus}</p>
