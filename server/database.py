@@ -13,3 +13,14 @@ class User(db.Model):
     phoneNumber = db.Column(db.String(20))
     email = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(20))
+
+class Post(db.Model):
+    __tablename__ = "posts"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    content = db.Column(db.Text)
+    userName = db.Column(db.String(50))
+    likes = db.Column(db.Integer)
+    dislikes = db.Column(db.Integer)
+    likedBy = db.Column(db.PickleType)
+    dislikedBy = db.Column(db.PickleType)

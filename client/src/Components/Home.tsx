@@ -35,7 +35,7 @@ function HomePage() {
 
         <CreateThread></CreateThread>
 
-        <PostSection></PostSection>
+        
         
         <div id="search-results">
         </div>

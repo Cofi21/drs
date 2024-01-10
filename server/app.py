@@ -8,7 +8,7 @@ from database import db
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins='http://localhost:5173')
 app.config['CORS_HEADERS'] = 'Content-Type'
-
+posts=[]
 DATABASE_URI = "mysql://root:my-secret-pw@mysql/maindb"
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -22,5 +22,5 @@ if __name__ == '__main__':
 
     from routes import login, register, get_user_data
     # Import routes after initializing the Flask app and SQLAlchemy
-
+    
     app.run(debug=True, host="0.0.0.0", port=3003)

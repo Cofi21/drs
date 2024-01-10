@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect
 from flask_cors import cross_origin
-from database import db, User
+from database import db, User,Post
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -78,3 +78,29 @@ def get_user_data(id):
         return jsonify(user_data), 200
     else:
         return jsonify({'error': 'User not found'}), 404
+    
+@auth_blueprint.route('/postSection', methods=['GET'])
+def get_posts():
+    posts = Post.query.all()
+    return jsonify([post.__dict__ for post in posts])
+
+@auth_blueprint.route('/postSection', methods=['POST'])
+def create_post():
+    data = request.get_json()
+
+    new_post = Post(
+        title=data['title'],
+        content=data['content'],
+        userName=data['userName'],
+        likes=0,
+        dislikes=0,
+        likedBy=[],
+        dislikedBy=[]
+    )
+
+    db.session.add(new_post)
+    db.session.commit()
+
+    return jsonify({'message': 'Post created successfully'})
+    
+
