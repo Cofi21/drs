@@ -12,10 +12,23 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
+
+
     user = User.query.filter_by(email=username, password=password).first()
 
     if user:
-        response = jsonify({'message': 'Successful login'})
+        user_data = {
+            'id': user.id,
+            'firstName' : user.firstName,
+            'lastName' : user.lastName,
+            'address' : user.address,
+            'city' : user.city,
+            'country' : user.country,
+            'phoneNumber' : user.phoneNumber,
+            'email' : user.email,
+            'password' : user.password
+        }
+        response = jsonify({'message': 'Successful login', 'user': user_data})
         return response, 200
     else:
         response = jsonify({'message': 'Invalid username or password'})

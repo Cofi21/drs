@@ -4,14 +4,14 @@ db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     firstName = db.Column(db.String(20))
     lastName = db.Column(db.String(20))
     address = db.Column(db.String(20))
     city = db.Column(db.String(20))
     country = db.Column(db.String(20))
     phoneNumber = db.Column(db.String(20))
-    email = db.Column(db.String(20), unique=True)
+    email = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(20))
 
 class Post(db.Model):

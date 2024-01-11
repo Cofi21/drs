@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import '../Styles/user_info.css';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { useAuth } from "./AuthContext";
 
 function UserInfoPage() {
 
@@ -22,7 +23,7 @@ function UserInfoPage() {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch(`http://localhost:3003/userInfo/${id}`);
+                const response = await fetch(`http://localhost:3003/auth/userInfo/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         console.log('User not found'); // Log or handle 404
