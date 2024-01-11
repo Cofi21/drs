@@ -47,10 +47,32 @@ function UserInfoPage() {
       navigate('/');
     };
 
-    const handleSave = () => {
-      // Add logic to save the updated user data
-      throw new Error('Function not implemented.');
-    };
+    const handleSave = async () => {
+  try {
+    const response = await fetch(`http://localhost:3003/auth/userInfo/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const updatedUserData = await response.json();
+    console.log('User data updated successfully:', updatedUserData);
+
+    // You may want to update the local state with the updated data if needed
+    setUserData(updatedUserData);
+
+    // Optionally, redirect the user to another page or perform any other actions
+    navigate('/');
+  } catch (error) {
+    console.error('Error updating user data', error);
+  }
+};
 
   return (
     <div className="container">

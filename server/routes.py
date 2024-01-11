@@ -92,6 +92,33 @@ def get_user_data(id):
     else:
         return jsonify({'error': 'User not found'}), 404
     
+
+
+@auth_blueprint.route('/userInfo/<int:id>', methods=['PUT'])
+def update_user_data(id):
+    matching_user = User.query.get(id)
+
+    if matching_user:
+        # Assuming you receive the updated data in JSON format
+        updated_data = request.get_json()
+
+        # Update user attributes
+        matching_user.firstName = updated_data.get('firstName', matching_user.firstName)
+        matching_user.lastName = updated_data.get('lastName', matching_user.lastName)
+        matching_user.address = updated_data.get('address', matching_user.address)
+        matching_user.city = updated_data.get('city', matching_user.city)
+        matching_user.country = updated_data.get('country', matching_user.country)
+        matching_user.phoneNumber = updated_data.get('phoneNumber', matching_user.phoneNumber)
+        matching_user.email = updated_data.get('email', matching_user.email)
+        matching_user.password = updated_data.get('password', matching_user.password)
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        return jsonify({'message': 'User updated successfully'}), 200
+    else:
+        return jsonify({'error': 'User not found'}), 404
+    
 @auth_blueprint.route('/postSection', methods=['GET'])
 def get_posts():
     posts = Post.query.all()
