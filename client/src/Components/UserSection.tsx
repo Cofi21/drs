@@ -12,6 +12,7 @@ function UserSection() {
       navigate(`/userInfo/${user.id}`);
     }
   };
+  
 
   return (
     <div className="auth-buttons">

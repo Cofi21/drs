@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, redirect
+from flask import Blueprint, request, jsonify, redirect,session
 from flask_cors import cross_origin
 from database import db, User,Post
+
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -15,6 +16,7 @@ def login():
 
 
     user = User.query.filter_by(email=username, password=password).first()
+    session["user"]=username
 
     if user:
         user_data = {
