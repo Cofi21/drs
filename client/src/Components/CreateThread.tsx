@@ -1,5 +1,5 @@
-import React, { useState, useEffect, FormEvent } from 'react';
-import { useAuth } from "./AuthContext";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 import '../Styles/home.css';
 
 interface Post {
@@ -21,29 +21,48 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if the current user is "Guest" and prevent post creation
     if (currentUser === 'Guest') {
-      console.error("Guest user cannot create posts.");
+      console.error('Guest user cannot create posts.');
       return;
     }
 
-    const newPost: Post = {
-      title,
-      content,
-      userName: currentUser,
-      likes: 0,
-      dislikes: 0,
-      likedBy: [],
-      dislikedBy: [],
-    };
+    try {
+      const response = await fetch('http://localhost:3003/auth/postSection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          userName: currentUser,
+        }),
+      });
 
-    addPost(newPost);
+      if (response.ok) {
+        const newPost: Post = {
+          title,
+          content,
+          userName: currentUser,
+          likes: 0,
+          dislikes: 0,
+          likedBy: [],
+          dislikedBy: [],
+        };
+        console.info
+        addPost(newPost);
 
-    setTitle('');
-    setContent('');
+        setTitle('');
+        setContent('');
+      } else {
+        console.error('Failed to create post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
   };
 
   return (
@@ -72,115 +91,38 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
   );
 };
 
-interface PostListProps {
-  posts: Post[];
-  handleLikeDislike: (postId: number, type: 'like' | 'dislike', e: React.MouseEvent<HTMLButtonElement>) => void;
-  handleDeletePost: (postId: number, postOwner: string) => void;
-  currentUser: string;
-}
 
-const PostList: React.FC<PostListProps> = ({ posts, handleLikeDislike, handleDeletePost, currentUser }) => (
-  <div>
-    <h2>Post Section</h2>
-    {posts.map((post, index) => (
-      <div key={index}>
-        <h3>{post.title}</h3>
-        <p>{post.content}</p>
-        <p>Posted by: {post.userName}</p>
-        <p>Likes: {post.likes}</p>
-        <p>Dislikes: {post.dislikes}</p>
-        <button
-          onClick={(e) => handleLikeDislike(index, 'like', e)}
-          disabled={currentUser === 'Guest' || post.likedBy.includes(currentUser)}
-        >
-          Like
-        </button>
-        <button
-          onClick={(e) => handleLikeDislike(index, 'dislike', e)}
-          disabled={currentUser === 'Guest' || post.dislikedBy.includes(currentUser)}
-        >
-          Dislike
-        </button>
-        <button
-          onClick={() => handleDeletePost(index, post.userName)}
-          disabled={currentUser !== post.userName}
-        >
-          Delete
-        </button>
-      </div>
-    ))}
-  </div>
-);
-
-const PostFunction = () => {
+const PostFunction: React.FC = () => {
   const { user } = useAuth();
-
-  const initialPosts: Post[] = JSON.parse(localStorage.getItem('posts') || '[]');
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>([]);
+  //const { currentUser } = useAuth();
 
   useEffect(() => {
-    localStorage.setItem('posts', JSON.stringify(posts));
-  }, [posts]);
-
-  const addPost = (post: Post) => {
-    setPosts([...posts, post]);
-  };
-
-  const handleLikeDislike = (postId: number, type: 'like' | 'dislike', e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    if (user) {
-      setPosts((prevPosts) => {
-        const updatedPosts = [...prevPosts];
-        const postToUpdate = updatedPosts[postId];
-
-        if (type === 'like' && !postToUpdate.likedBy.includes(user.username)) {
-          postToUpdate.likes += 1;
-          postToUpdate.likedBy.push(user.username);
-
-          if (postToUpdate.dislikes !== 0) {
-            postToUpdate.dislikes -= 1;
-            const indexOfCurrentUser = postToUpdate.dislikedBy.indexOf(user.username);
-            if (indexOfCurrentUser !== -1) {
-              postToUpdate.dislikedBy.splice(indexOfCurrentUser, 1);
-            }
-          }
-        } else if (type === 'dislike' && !postToUpdate.dislikedBy.includes(user.username)) {
-          postToUpdate.dislikes += 1;
-          postToUpdate.dislikedBy.push(user.username);
-
-          if (postToUpdate.likes !== 0) {
-            postToUpdate.likes -= 1;
-            const indexOfCurrentUser = postToUpdate.likedBy.indexOf(user.username);
-            if (indexOfCurrentUser !== -1) {
-              postToUpdate.likedBy.splice(indexOfCurrentUser, 1);
-            }
-          }
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:3003/auth/postSectionGet');
+        if (response.ok) {
+          const data = await response.json();
+          setPosts(data.posts);
+        } else {
+          console.error('Failed to fetch posts:', response.statusText);
         }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
 
-        return updatedPosts;
-      });
-    } else {
-      console.error("Guest user cannot like/dislike posts.");
-    }
-  };
+    fetchPosts();
+  }, []);
 
-  const handleDeletePost = (postId: number, postOwner: string) => {
-    if (user && user.username === postOwner) {
-      setPosts((prevPosts) => {
-        const updatedPosts = [...prevPosts];
-        updatedPosts.splice(postId, 1);
-        return updatedPosts;
-      });
-    } else {
-      console.error("You are not authorized to delete this post.");
-    }
+  const addPost = (newPost: Post) => {
+    setPosts((prevPosts) => [...prevPosts, newPost]);
   };
 
   return (
     <div>
       <CreateThread addPost={addPost} currentUser={user?.username ?? 'Guest'} />
-      <PostList posts={posts} handleLikeDislike={handleLikeDislike} handleDeletePost={handleDeletePost} currentUser={user?.username ?? 'Guest'} />
+      
     </div>
   );
 };

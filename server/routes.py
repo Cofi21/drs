@@ -121,10 +121,7 @@ def update_user_data(id):
     else:
         return jsonify({'error': 'User not found'}), 404
     
-@auth_blueprint.route('/postSection', methods=['GET'])
-def get_posts():
-    posts = Post.query.all()
-    return jsonify([post.__dict__ for post in posts])
+
 
 @auth_blueprint.route('/postSection', methods=['POST'])
 def create_post():
@@ -144,5 +141,29 @@ def create_post():
     db.session.commit()
 
     return jsonify({'message': 'Post created successfully'})
+
+
+
+
+@auth_blueprint.route('/postSectionGet', methods=['GET'])
+def get_posts():
+    try:
+        # Fetch all posts from the database
+        posts = Post.query.all()
+
+        # Convert posts to a list of dictionaries
+        posts_list = [{'title': post.title,
+                       'content': post.content,
+                       'userName': post.userName,
+                       'likes': post.likes,
+                       'dislikes': post.dislikes,
+                       'likedBy': post.likedBy,
+                       'dislikedBy': post.dislikedBy}
+                      for post in posts]
+
+        return jsonify(posts_list)
+    except Exception as e:
+        print(f"Error fetching posts: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
     
 
