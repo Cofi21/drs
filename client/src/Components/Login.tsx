@@ -56,9 +56,13 @@ function LoginPage() {
         const userData = {
           username: credentials.username,
           id: data.user.id,
-          firstName: data.user.firstName,
+          name: data.user.firstName,
           lastName: data.user.lastName,
-          // i tako dalje...
+          address: data.user.address,
+          city: data.user.city,
+          country: data.user.country,
+          phoneNumber: data.user.phoneNumber,
+          password: data.user.password
         };
   
         login(userData);

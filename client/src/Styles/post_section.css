@@ -1,0 +1,90 @@
+/* Your CSS styling */
+.post-list {
+     list-style-type: none;
+     padding: 0;
+   }
+   
+   .post {
+     border: 3px solid #111010;
+     margin-bottom: 16px;
+     padding: 16px;
+     border-radius: 5px;
+     background-color: #333;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   }
+   
+   .post-title {
+     font-size: 1.5rem;
+     margin-bottom: 8px;
+     color: #ff4500;
+   }
+   
+   .post-content {
+     font-size: 1.2rem;
+     margin-bottom: 8px;
+     color: #ddd;
+   }
+   
+   .post-author {
+     font-size: 1rem;
+     color: #888;
+   }
+   ul{
+     list-style-type: none;
+   }
+   ul li p{
+     text-align: center;
+   }
+
+
+.comment-list {
+     list-style-type: none;
+     padding: 0;
+   }
+   
+   .comment {
+     border: 1px solid #ddd;
+     margin-bottom: 8px;
+     padding: 8px;
+     border-radius: 4px;
+     background-color: #f9f9f9;
+     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+   }
+   
+   .comment-content {
+     font-size: 1rem;
+     margin-bottom: 4px;
+   }
+   
+   .comment-author {
+     font-size: 0.8rem;
+     color: #888;
+   }
+   
+   .comment-form {
+     margin-top: 16px;
+   }
+   
+   .comment-form textarea {
+     width: 98%;
+     padding: 8px;
+     margin-bottom: 8px;
+     border: 1px solid #555; /* Darker border color */
+     background-color: #222; /* Darker background color for input elements */
+     color: #ddd;
+   }
+   
+   .comment-form button {
+     padding: 8px;
+     font-size: 0.9rem;
+     background-color: #007bff;
+     color: #fff;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+   }
+   
+   .comment-form button:hover {
+     background-color: #0056b3;
+   }
+   

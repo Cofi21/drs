@@ -3,6 +3,13 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 interface User {
   username: string;
   id: number;
+  name: string;
+  lastName: string;
+  address: string;
+  city: string;
+  country: string;
+  phoneNumber: number;
+  password: string;
 }
 
 interface AuthContextProps {

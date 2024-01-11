@@ -2,6 +2,7 @@ import { useAuth } from "./AuthContext";
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; 
 
+
 function UserSection() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ function UserSection() {
     <div className="auth-buttons">
       {user ? (
         <div>
-          <h2>Welcome, {user.username}! Your ID: {user.id}</h2>
+          <h2>Welcome, {user.name}!</h2>
           <button className="auth-btn" onClick={logout}>
             Log out
           </button>

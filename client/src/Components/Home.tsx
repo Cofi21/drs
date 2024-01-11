@@ -32,9 +32,9 @@ function HomePage() {
             <input type="text" id="search-bar" placeholder="Enter your search term"/>
             <button className="btn search-btn" >Search</button>
         </div>
-
-        <CreateThread></CreateThread>
-
+     <CreateThread></CreateThread>
+        
+     <PostSection></PostSection>
         
         
         <div id="search-results">

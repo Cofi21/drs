@@ -16,7 +16,6 @@ def login():
 
 
     user = User.query.filter_by(email=username, password=password).first()
-    session["user"]=username
 
     if user:
         user_data = {
@@ -69,7 +68,6 @@ def register():
         print('Error during registration:', str(e))
         return jsonify({'message': 'Error during registration'}), 500
 
-
 # Assuming you have a route to fetch user data
 @auth_blueprint.route('/userInfo/<int:id>', methods=['GET'])  # Assuming user_id is an integer
 def get_user_data(id):
@@ -94,8 +92,6 @@ def get_user_data(id):
     else:
         return jsonify({'error': 'User not found'}), 404
     
-
-
 @auth_blueprint.route('/userInfo/<int:id>', methods=['PUT'])
 def update_user_data(id):
     matching_user = User.query.get(id)
@@ -121,32 +117,45 @@ def update_user_data(id):
     else:
         return jsonify({'error': 'User not found'}), 404
     
-
-
 @auth_blueprint.route('/postSection', methods=['POST'])
 def create_post():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    new_post = Post(
-        title=data['title'],
-        content=data['content'],
-        userName=data['userName'],
-        likes=0,
-        dislikes=0,
-        likedBy=[],
-        dislikedBy=[]
-    )
+        new_post = Post(
+            title=data['title'],
+            content=data['content'],
+            userName=data['userName'],
+            likes=0,
+            dislikes=0,
+            likedBy=[],
+            dislikedBy=[]
+        )
 
-    db.session.add(new_post)
-    db.session.commit()
+        db.session.add(new_post)
+        db.session.commit()
 
-    return jsonify({'message': 'Post created successfully'})
+        posts = Post.query.all()
+
+            # Convert posts to a list of dictionaries
+        posts_list = [{'id': post.id,
+                'title': post.title,
+                    'content': post.content,
+                    'userName': post.userName,
+                        'likes': post.likes,
+                        'dislikes': post.dislikes,
+                        'likedBy': post.likedBy,
+                        'dislikedBy': post.dislikedBy}
+                        for post in posts]
+
+        return jsonify(posts_list)
+    except Exception as e:
+        print(f"Error fetching posts: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 
-
-
-@auth_blueprint.route('/postSectionGet', methods=['GET'])
-def get_posts():
+@auth_blueprint.route('/', methods=['GET'])
+def onload():
     try:
         # Fetch all posts from the database
         posts = Post.query.all()
@@ -165,5 +174,18 @@ def get_posts():
     except Exception as e:
         print(f"Error fetching posts: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
-    
 
+@auth_blueprint.route('/postSection/<int:post_id>/comments', methods=['GET', 'POST'])
+def post_comments(post_id):
+    if request.method == 'GET':
+        post = Post.query.get_or_404(post_id)
+        comments = Comment.query.filter_by(post_id=post_id).all()
+        comments_list = [{'id': comment.id, 'content': comment.content} for comment in comments]
+        return jsonify({'post': {'id': post.id, 'title': post.title, 'comments': comments_list}})
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        new_comment = Comment(content=data.get('content'), post_id=post_id)
+        db.session.add(new_comment)
+        db.session.commit()
+        return jsonify({'message': 'Comment added successfully'})
