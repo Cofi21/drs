@@ -5,9 +5,7 @@ import UserSection from './UserSection';
 import CreateThread from './CreateThread';
 
 function HomePage() {
-
-
-
+     
      function performSearch(): React.MouseEventHandler<HTMLButtonElement> | undefined {
           throw new Error('Function not implemented.');
      }

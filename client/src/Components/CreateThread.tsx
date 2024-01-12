@@ -41,12 +41,13 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           title,
           content,
           userName: currentUser,
+          
         }),
       });
-
+      
       if (response.ok) {
         const newPost: Post = {
-          id: 0,
+          id : 0, 
           title,
           content,
           userName: currentUser,
@@ -101,21 +102,21 @@ const PostFunction: React.FC = () => {
   //const { currentUser } = useAuth();
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('http://localhost:3003/auth/postSection');
-        if (response.ok) {
-          const data = await response.json();
-          setPosts(data.posts);
-        } else {
-          console.error('Failed to fetch posts:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    };
+    // const fetchPosts = async () => {
+    //   try {
+    //     const response = await fetch('http://localhost:3003/auth/postSection');
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       setPosts(data.posts);
+    //     } else {
+    //       console.error('Failed to fetch posts:', response.statusText);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error fetching posts:', error);
+    //   }
+    // };
 
-    fetchPosts();
+    //fetchPosts();
   }, []);
 
   const addPost = (newPost: Post) => {

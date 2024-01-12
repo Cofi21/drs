@@ -16,7 +16,7 @@ class User(db.Model):
 
 class Post(db.Model):
     __tablename__ = "posts"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100))
     content = db.Column(db.Text)
     userName = db.Column(db.String(50))
@@ -24,10 +24,10 @@ class Post(db.Model):
     dislikes = db.Column(db.Integer)
     likedBy = db.Column(db.PickleType)
     dislikedBy = db.Column(db.PickleType)
-    comments = db.relationship('Comment', backref='post', lazy=True)
+#     comments = db.relationship('Comment', backref='post', lazy=True)
 
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    authoor = db.Column(db.String(20))
-    content = db.Column(db.String(255), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+# class Comment(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     authoor = db.Column(db.String(20))
+#     content = db.Column(db.String(255), nullable=False)
+#     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)

@@ -128,8 +128,6 @@ def create_post():
             userName=data['userName'],
             likes=0,
             dislikes=0,
-            likedBy=[],
-            dislikedBy=[]
         )
 
         db.session.add(new_post)
@@ -144,8 +142,7 @@ def create_post():
                     'userName': post.userName,
                         'likes': post.likes,
                         'dislikes': post.dislikes,
-                        'likedBy': post.likedBy,
-                        'dislikedBy': post.dislikedBy}
+                        }
                         for post in posts]
 
         return jsonify(posts_list)
@@ -161,7 +158,9 @@ def onload():
         posts = Post.query.all()
 
         # Convert posts to a list of dictionaries
-        posts_list = [{'title': post.title,
+        posts_list = [{
+                        'id' : post.id,
+                        'title': post.title,
                        'content': post.content,
                        'userName': post.userName,
                        'likes': post.likes,
