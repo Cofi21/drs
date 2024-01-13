@@ -1,17 +1,23 @@
 /* Your CSS styling */
-.post-list {
+  .post-list {
      list-style-type: none;
      padding: 0;
    }
+
+   .other-user-post-list{
+    list-style-type: none;
+    padding: 20px;
+   }
    
-   .post {
+   .post  {
      border: 3px solid #111010;
      margin-bottom: 16px;
      padding: 16px;
      border-radius: 5px;
      background-color: #333;
      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-   }
+     background-color: rgba(255, 255, 255, 0.1);
+    }
    
    .post-title {
      font-size: 1.5rem;
@@ -86,5 +92,14 @@
    
    .comment-form button:hover {
      background-color: #0056b3;
+   }
+
+   a{
+    color: red;
+    float: right;
+   }
+
+   a:hover{
+    color: #ff4500;
    }
    

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../Styles/post_section.css';
+import { AuthProvider, useAuth } from './AuthContext';
 
 interface Post {
   id: number;
@@ -18,6 +19,10 @@ const App: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [newComment, setNewComment] = useState('');
+  const {user} = useAuth();
+  const [otherPosts, setOtherUserPosts] = useState<Post[]>([]);
+  
+  
 
   const handleCommentSubmit = async (postId: number) => {
     try {
@@ -53,24 +58,32 @@ const App: React.FC = () => {
         const response = await fetch('http://localhost:3003/auth/');
         const data = await response.json();
         console.log(data);
-        setPosts(data);
+  
+        const userPosts: Post[] = data.filter((post: Post) => user?.username === post.userName);
+        setPosts(userPosts);
+  
+        const otherUserPosts: Post[] = data.filter((post: Post) => user?.username !== post.userName);
+        setOtherUserPosts(otherUserPosts);
       } catch (error) {
         console.error('Error fetching posts:', error);
       }
     };
-
+  
     fetchPosts();
-  }, []);
+  }, [user]);
 
   return (
+    <div>
+      {posts.length > 0 ? (
     <div className='post'>
+    
       <ul className="post-list">
         {posts.map((post) => (
           <li key={post.id} className="post">
+            <a><u>Delete post</u></a>
             <h2 className="post-title">{post.title}</h2>
             <p className="post-content">{post.content}</p>
             <p className="post-author">Author: {post.userName}</p>
-
             {/* Comments Section */}
             <div className="comments-section">
               <h3>Comments</h3>
@@ -96,6 +109,28 @@ const App: React.FC = () => {
           </li>
         ))}
       </ul>
+      
+
+    
+
+    </div>
+    ) : (
+      <p>You have no posts.</p>
+    )}
+    <h1>Other User Posts</h1>
+    {otherPosts.length > 0 ?(
+    <ul className="other-user-post-list">
+      {otherPosts.map((post) => (
+        <li key={post.id} className="post">
+          <h2 className="post-title">{post.title}</h2>
+            <p className="post-content">{post.content}</p>
+            <p className="post-author">Author: {post.userName}</p>
+        </li>
+      ))}
+    </ul>
+    ) : (
+      <p>There are no posts</p>
+    )}
     </div>
   );
 };

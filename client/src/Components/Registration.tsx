@@ -1,10 +1,20 @@
 import { useState } from 'react';
-import '../Styles/registration.css'; // Import your CSS file
-import { useNavigate } from 'react-router-dom'; 
+import '../Styles/registration.css';
+import { useNavigate } from 'react-router-dom';
 
-function RegistrationPage()  {
-  // State to store registration data
-  const [registrationData, setRegistrationData] = useState({
+interface RegistrationData {
+  firstName: string;
+  lastName: string;
+  address: string;
+  city: string;
+  country: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+}
+
+function RegistrationPage() {
+  const [registrationData, setRegistrationData] = useState<RegistrationData>({
     firstName: '',
     lastName: '',
     address: '',
@@ -14,12 +24,10 @@ function RegistrationPage()  {
     email: '',
     password: '',
   });
+  const [registrationStatus, setRegistrationStatus] = useState('');
   const navigate = useNavigate();
 
-  const [registrationStatus, setRegistrationStatus] = useState('');
-
-  // Function to handle input changes
-  const handleInputChange = (e: { target: { name: any; value: any; }; }) => { // ovo se treba namestiti samo sam uradio ovako zbog push - a
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRegistrationData((prevData) => ({
       ...prevData,
@@ -27,8 +35,24 @@ function RegistrationPage()  {
     }));
   };
 
-  // Function to handle registration submission
+  const validateInputs = () => {
+    const { firstName, lastName, address, city, country, phoneNumber, email, password } = registrationData;
+
+    if (!firstName || !lastName || !address || !city || !country || !phoneNumber || !email || !password) {
+      setRegistrationStatus('Please fill in all fields.');
+      return false;
+    }
+
+    // You can add more specific validation rules for each field if needed
+
+    return true;
+  };
+
   const handleRegistration = async () => {
+    if (!validateInputs()) {
+      return; // Do not proceed with registration if validation fails
+    }
+
     try {
       const response = await fetch('http://localhost:3003/auth/registration', {
         method: 'POST',
@@ -39,32 +63,27 @@ function RegistrationPage()  {
         body: JSON.stringify(registrationData),
       });
 
-      console.log("response ", response)
       const data = await response.json();
 
       if (response.ok) {
         console.log('Registration successful:', data.message);
         navigate('/login');
-        // Optionally, you can redirect to the login page or perform other actions
       } else {
         setRegistrationStatus(`Registration failed: ${data.message}`);
         console.error('Registration failed:', data.message);
-        // Handle registration failure, show an error message, etc.
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      // Handle network or other errors during registration
     }
   };
 
   const handleCancel = () => {
-    // Redirect to the home page or any other desired page on cancel
     navigate('/');
   };
 
   return (
     <div className="registration-container">
-       <p id="naslov">Welcome to forum</p>
+      <p id="naslov">Welcome to forum</p>
       <h2>Sign up</h2>
       <form className="registration-form">
         <input
@@ -133,12 +152,16 @@ function RegistrationPage()  {
         />
       </form>
       <div className="button-container">
-        <button id="btn-reg" onClick={handleRegistration}>Sign up</button>
-        <button id="btn-cancel" onClick={handleCancel}>Home</button>
+        <button id="btn-reg" onClick={handleRegistration}>
+          Sign up
+        </button>
+        <button id="btn-cancel" onClick={handleCancel}>
+          Home
+        </button>
       </div>
-      <p>{registrationStatus}</p>
+      <p> {registrationStatus}</p>
     </div>
   );
-};
+}
 
 export default RegistrationPage;

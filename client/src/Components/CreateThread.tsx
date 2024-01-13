@@ -101,24 +101,6 @@ const PostFunction: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   //const { currentUser } = useAuth();
 
-  useEffect(() => {
-    // const fetchPosts = async () => {
-    //   try {
-    //     const response = await fetch('http://localhost:3003/auth/postSection');
-    //     if (response.ok) {
-    //       const data = await response.json();
-    //       setPosts(data.posts);
-    //     } else {
-    //       console.error('Failed to fetch posts:', response.statusText);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error fetching posts:', error);
-    //   }
-    // };
-
-    //fetchPosts();
-  }, []);
-
   const addPost = (newPost: Post) => {
     setPosts((prevPosts) => [...prevPosts, newPost]);
   };
@@ -126,17 +108,18 @@ const PostFunction: React.FC = () => {
   return (
     <div>
       <CreateThread addPost={addPost} currentUser={user?.username ?? 'Guest'} />
-      <h1>Posts</h1>
+      <h1>Your posts</h1>
       <div >
       <ul className="post-list">
-      {posts.map(post => (
-       <li key={post.id} className="post">
-        <h2 className="post-title">{post.title}</h2>
-        <p className="post-content">{post.content}</p>
-        <p className="post-author">Author: {post.userName}</p>
-      </li>
-  ))}
-</ul>
+        {posts.map((post) => (
+          <li key={post.id} className="post">
+            <a><u>Delete post</u></a>
+            <h2 className="post-title">{post.title}</h2>
+            <p className="post-content">{post.content}</p>
+            <p className="post-author">Author: {post.userName}</p>
+          </li>
+        ))}
+      </ul>
     </div>
     </div>
   );
