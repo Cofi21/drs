@@ -44,6 +44,7 @@ const App: React.FC = () => {
   //NAPOMENA: DELETE RADI SAMO KAD SE IZ WORKBENCHA IZBRISU SVI KOMENTARI VEZANI ZA TAJ POST
   const handleCommentSubmit = async (postId: number) => {
     try {
+      console.log('User object:', user);
       const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
         method: 'POST',
         headers: {
@@ -51,6 +52,7 @@ const App: React.FC = () => {
         },
         body: JSON.stringify({
           content: newComment,
+          author: user?.username,
         }),
       });
 
@@ -69,6 +71,7 @@ const App: React.FC = () => {
       console.error('Error adding comment:', error);
     }
   };
+  
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -103,7 +106,7 @@ const App: React.FC = () => {
                 </a>
             <h2 className="post-title">{post.title}</h2>
             <p className="post-content">{post.content}</p>
-            <p className="post-author">Author: {user ? user.username : 'Anonymous'}</p>{/*proba da vidim  kako ubacuje u bazu*/}
+            <p className="post-author">Author: {post.userName}</p>{/*proba da vidim  kako ubacuje u bazu*/}
             {/* Comments Section */}
             <div className="comments-section">
               <h3>Comments</h3>
@@ -111,7 +114,7 @@ const App: React.FC = () => {
                 {comments[post.id]?.map((comment: Comment) => (
                   <li key={comment.id} className="comment">
                     <p className="comment-content">{comment.content}</p>
-                    <p className="comment-author">Author: {user ? user.username : 'Anonymous'}</p> {/*proba da vidim  kako ubacuje u bazu*/}
+                    <p className="comment-author">Author: {comment.author}</p> {/*proba da vidim  kako ubacuje u bazu*/}
                   </li>
                 ))}
               </ul>

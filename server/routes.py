@@ -179,15 +179,18 @@ def post_comments(post_id):
     if request.method == 'GET':
         post = Post.query.get_or_404(post_id)
         comments = Comment.query.filter_by(post_id=post_id).all()
-        comments_list = [{'id': comment.id, 'content': comment.content} for comment in comments]
+        comments_list = [{'id': comment.id, 'content': comment.content, 'author': {'id': comment.author.id, 'username': comment.author.username}} for comment in comments]
         return jsonify({'post': {'id': post.id, 'title': post.title, 'comments': comments_list}})
 
     elif request.method == 'POST':
         data = request.get_json()
-        new_comment = Comment(content=data.get('content'), post_id=post_id)
+        print('Received data:', data)
+        new_comment = Comment(content=data.get('content'), post_id=post_id, author=data.get('author'))
         db.session.add(new_comment)
         db.session.commit()
         return jsonify({'message': 'Comment added successfully'})
+
+
     
 
 @auth_blueprint.route('/postSection/<int:post_id>', methods=['DELETE'])
