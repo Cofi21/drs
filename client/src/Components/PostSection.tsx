@@ -22,8 +22,26 @@ const App: React.FC = () => {
   const {user} = useAuth();
   const [otherPosts, setOtherUserPosts] = useState<Post[]>([]);
   
-  
+  const handleDeletePost = async (postId: number) => {
+    try {
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
+      if (response.ok) {
+        // Remove the deleted post from the local state
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      } else {
+        console.error('Failed to delete post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
+  //NAPOMENA: DELETE RADI SAMO KAD SE IZ WORKBENCHA IZBRISU SVI KOMENTARI VEZANI ZA TAJ POST
   const handleCommentSubmit = async (postId: number) => {
     try {
       const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
@@ -80,10 +98,12 @@ const App: React.FC = () => {
       <ul className="post-list">
         {posts.map((post) => (
           <li key={post.id} className="post">
-            <a><u>Delete post</u></a>
+            <a onClick={() => handleDeletePost(post.id)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
+                  Delete post
+                </a>
             <h2 className="post-title">{post.title}</h2>
             <p className="post-content">{post.content}</p>
-            <p className="post-author">Author: {post.userName}</p>
+            <p className="post-author">Author: {user ? user.username : 'Anonymous'}</p>{/*proba da vidim  kako ubacuje u bazu*/}
             {/* Comments Section */}
             <div className="comments-section">
               <h3>Comments</h3>
@@ -91,7 +111,7 @@ const App: React.FC = () => {
                 {comments[post.id]?.map((comment: Comment) => (
                   <li key={comment.id} className="comment">
                     <p className="comment-content">{comment.content}</p>
-                    <p className="comment-author">Author: {comment.author}</p>
+                    <p className="comment-author">Author: {user ? user.username : 'Anonymous'}</p> {/*proba da vidim  kako ubacuje u bazu*/}
                   </li>
                 ))}
               </ul>

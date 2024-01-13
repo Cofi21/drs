@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect,session
 from flask_cors import cross_origin
-from database import db, User,Post
+from database import db, User,Post,Comment
 
 
 auth_blueprint = Blueprint('auth', __name__)
@@ -173,7 +173,7 @@ def onload():
     except Exception as e:
         print(f"Error fetching posts: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
-
+#Promeniti ovaj comment GET i POST
 @auth_blueprint.route('/postSection/<int:post_id>/comments', methods=['GET', 'POST'])
 def post_comments(post_id):
     if request.method == 'GET':
@@ -188,3 +188,20 @@ def post_comments(post_id):
         db.session.add(new_comment)
         db.session.commit()
         return jsonify({'message': 'Comment added successfully'})
+    
+
+@auth_blueprint.route('/postSection/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    try:
+        # Find the post by ID
+        post_to_delete = Post.query.get(post_id)
+
+        if post_to_delete:
+            db.session.delete(post_to_delete)
+            db.session.commit()
+            return jsonify({'message': 'Post deleted successfully'})
+        else:
+            return jsonify({'error': 'Post not found'}), 404
+    except Exception as e:
+        print(f"Error deleting post: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
