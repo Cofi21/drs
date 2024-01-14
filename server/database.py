@@ -24,7 +24,8 @@ class Post(db.Model):
     dislikes = db.Column(db.Integer)
     likedBy = db.Column(db.PickleType)
     dislikedBy = db.Column(db.PickleType)
-    comments = db.relationship('Comment', backref='post', lazy=True)
+    comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")  #bez ovog delete-oprhan ne radi brisanje
+
 
 class Comment(db.Model):
     __tablename__ = "comments"

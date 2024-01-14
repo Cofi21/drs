@@ -192,7 +192,7 @@ def post_comments(post_id):
 
 
     
-
+#Unapredjeni delete koji automatski brise sve komentare vezane za dati post!!!!
 @auth_blueprint.route('/postSection/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
     try:
@@ -200,8 +200,16 @@ def delete_post(post_id):
         post_to_delete = Post.query.get(post_id)
 
         if post_to_delete:
+            # pogledati da li ima komentara vezanih za post
+            if post_to_delete.comments:
+                # obrisati sve komentare
+                for comment in post_to_delete.comments:
+                    db.session.delete(comment)
+
+            # obrisati post
             db.session.delete(post_to_delete)
             db.session.commit()
+
             return jsonify({'message': 'Post deleted successfully'})
         else:
             return jsonify({'error': 'Post not found'}), 404
