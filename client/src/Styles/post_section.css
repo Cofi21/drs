@@ -89,6 +89,10 @@
      border-radius: 4px;
      cursor: pointer;
    }
+   .comment-form button + button {
+    margin-left: 10px;
+  }
+  
    
    .comment-form button:hover {
      background-color: #0056b3;

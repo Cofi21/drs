@@ -7,6 +7,8 @@ interface Post {
   title: string;
   content: string;
   userName: string;
+  likes: number;
+  dislikes: number;
 }
 
 interface Comment {
@@ -19,9 +21,11 @@ const App: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [newComment, setNewComment] = useState('');
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [otherPosts, setOtherUserPosts] = useState<Post[]>([]);
-  
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
+  const [dislikedPosts, setDislikedPosts] = useState<number[]>([]);
+//DELETE TRENUTNO NE RADI AKO POSTOJI KOMENTAR NA POSTU
   const handleDeletePost = async (postId: number) => {
     try {
       const response = await fetch(`http://localhost:3003/auth/postSection/${postId}`, {
@@ -32,7 +36,6 @@ const App: React.FC = () => {
       });
 
       if (response.ok) {
-        // Remove the deleted post from the local state
         setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
       } else {
         console.error('Failed to delete post:', response.statusText);
@@ -41,10 +44,9 @@ const App: React.FC = () => {
       console.error('Error deleting post:', error);
     }
   };
-  //NAPOMENA: DELETE RADI SAMO KAD SE IZ WORKBENCHA IZBRISU SVI KOMENTARI VEZANI ZA TAJ POST
+
   const handleCommentSubmit = async (postId: number) => {
     try {
-      console.log('User object:', user);
       const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
         method: 'POST',
         headers: {
@@ -71,89 +73,145 @@ const App: React.FC = () => {
       console.error('Error adding comment:', error);
     }
   };
-  
+  /* dodata pocetna logika za lajkovanje i dislajkovanje postova(kad se refreshuje stranica korisnik moze ponovo lajkovati ili dislajkovati)*/
+  const handleLike = async (postId: number) => {
+    try {
+      if (likedPosts.includes(postId)) {
+        console.warn('User has already liked this post.');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const updatedPosts = posts.map((post) =>
+          post.id === postId ? { ...post, likes: post.likes + 1 } : post
+        );
+        setPosts(updatedPosts);
+        setLikedPosts((prevLikedPosts) => [...prevLikedPosts, postId]);
+      } else {
+        console.error('Failed to like post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+/* dodata pocetna logika za lajkovanje i dislajkovanje postova(doraditi)*/
+  const handleDislike = async (postId: number) => {
+    try {
+      if (dislikedPosts.includes(postId)) {
+        console.warn('User has already disliked this post.');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/dislike`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const updatedPosts = posts.map((post) =>
+          post.id === postId ? { ...post, dislikes: post.dislikes + 1 } : post
+        );
+        setPosts(updatedPosts);
+        setDislikedPosts((prevDislikedPosts) => [...prevDislikedPosts, postId]);
+      } else {
+        console.error('Failed to dislike post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error disliking post:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await fetch('http://localhost:3003/auth/');
         const data = await response.json();
-        console.log(data);
-  
+
         const userPosts: Post[] = data.filter((post: Post) => user?.username === post.userName);
         setPosts(userPosts);
-  
+
         const otherUserPosts: Post[] = data.filter((post: Post) => user?.username !== post.userName);
         setOtherUserPosts(otherUserPosts);
       } catch (error) {
         console.error('Error fetching posts:', error);
       }
     };
-  
+
     fetchPosts();
   }, [user]);
 
   return (
     <div>
       {posts.length > 0 ? (
-    <div className='post'>
-    
-      <ul className="post-list">
-        {posts.map((post) => (
-          <li key={post.id} className="post">
-            <a onClick={() => handleDeletePost(post.id)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
+        <div className='post'>
+          <ul className="post-list">
+            {posts.map((post) => (
+              <li key={post.id} className="post">
+                <a
+                  onClick={() => handleDeletePost(post.id)}
+                  style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                >
                   Delete post
                 </a>
-            <h2 className="post-title">{post.title}</h2>
-            <p className="post-content">{post.content}</p>
-            <p className="post-author">Author: {post.userName}</p>{/*proba da vidim  kako ubacuje u bazu*/}
-            {/* Comments Section */}
-            <div className="comments-section">
-              <h3>Comments</h3>
-              <ul className="comment-list">
-                {comments[post.id]?.map((comment: Comment) => (
-                  <li key={comment.id} className="comment">
-                    <p className="comment-content">{comment.content}</p>
-                    <p className="comment-author">Author: {comment.author}</p> {/*proba da vidim  kako ubacuje u bazu*/}
-                  </li>
-                ))}
-              </ul>
+                <h2 className="post-title">{post.title}</h2>
+                <p className="post-content">{post.content}</p>
+                <p className="post-author">Author: {post.userName}</p>
+                <p className="post-likes">Likes: {post.likes}</p>
+                <p className="post-dislikes">Dislikes: {post.dislikes}</p>
+                <div className="comment-form">
+                  <button onClick={() => handleLike(post.id)}>Like</button>
+                  <button onClick={() => handleDislike(post.id)}>Dislike</button>
+                </div>
+                <div className="comments-section">
+                  <h3>Comments</h3>
+                  <ul className="comment-list">
+                    {comments[post.id]?.map((comment: Comment) => (
+                      <li key={comment.id} className="comment">
+                        <p className="comment-content">{comment.content}</p>
+                        <p className="comment-author">Author: {comment.author}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="comment-form">
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add a comment..."
+                    />
+                    <button onClick={() => handleCommentSubmit(post.id)}>Add Comment</button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p>You have no posts.</p>
+      )}
 
-              {/* Comment Form */}
-              <div className="comment-form">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                />
-                <button onClick={() => handleCommentSubmit(post.id)}>Add Comment</button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-      
-
-    
-
-    </div>
-    ) : (
-      <p>You have no posts.</p>
-    )}
-    <h1>Other User Posts</h1>
-    {otherPosts.length > 0 ?(
-    <ul className="other-user-post-list">
-      {otherPosts.map((post) => (
-        <li key={post.id} className="post">
-          <h2 className="post-title">{post.title}</h2>
-            <p className="post-content">{post.content}</p>
-            <p className="post-author">Author: {post.userName}</p>
-        </li>
-      ))}
-    </ul>
-    ) : (
-      <p>There are no posts</p>
-    )}
+      <h1>Other User Posts</h1>
+      {otherPosts.length > 0 ? (
+        <ul className="other-user-post-list">
+          {otherPosts.map((post) => (
+            <li key={post.id} className="post">
+              <h2 className="post-title">{post.title}</h2>
+              <p className="post-content">{post.content}</p>
+              <p className="post-author">Author: {post.userName}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>There are no posts</p>
+      )}
     </div>
   );
 };

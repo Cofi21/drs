@@ -208,3 +208,18 @@ def delete_post(post_id):
     except Exception as e:
         print(f"Error deleting post: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
+
+'''lajkovanje i dislajkovanje postova'''
+@auth_blueprint.route('/postSection/<int:post_id>/like', methods=['POST'])
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    post.likes += 1
+    db.session.commit()
+    return jsonify({'message': 'Post liked successfully', 'likes': post.likes})
+
+@auth_blueprint.route('/postSection/<int:post_id>/dislike', methods=['POST'])
+def dislike_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    post.dislikes += 1
+    db.session.commit()
+    return jsonify({'message': 'Post disliked successfully', 'dislikes': post.dislikes})
