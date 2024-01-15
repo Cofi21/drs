@@ -143,33 +143,53 @@ const handleDislike = async (postId: number) => {
   }
 };
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('http://localhost:3003/auth/');
-        const data = await response.json();
-  
-        let sortedPosts: Post[] = [];
-        //za sad radi samo za lajkoce i dislajkove jer nemamo nacin da izvucemo broj komentara na datom postu !!!!!!
-        if (sortOption === 'likes') {
-          sortedPosts = data.sort((a: Post, b: Post) => b.likes - a.likes);
-        } else if (sortOption === 'dislikes') {
-          sortedPosts = data.sort((a: Post, b: Post) => b.dislikes - a.dislikes);
-        } else if (sortOption === 'comments') {
-          sortedPosts = data.sort((a: Post, b: Post) => (comments[b.id]?.length || 0) - (comments[a.id]?.length || 0));
-        } else {
-          
-          sortedPosts = data;
-        }
-  
-        setPosts(sortedPosts);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    };
+useEffect(() => {
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:3003/auth/');
+      const data = await response.json();
 
-    fetchPosts();
-  }, [user]);
+      let sortedUserPosts: Post[] = [];
+      let sortedOtherUserPosts: Post[] = [];
+        //hotfix da sortira i "your posts" i "other user posts"
+      if (sortOption === 'likes') {
+        sortedUserPosts = data
+          .filter((post: Post) => user?.username === post.userName)
+          .sort((a: Post, b: Post) => b.likes - a.likes);
+
+        sortedOtherUserPosts = data
+          .filter((post: Post) => user?.username !== post.userName)
+          .sort((a: Post, b: Post) => b.likes - a.likes);
+      } else if (sortOption === 'dislikes') {
+        sortedUserPosts = data
+          .filter((post: Post) => user?.username === post.userName)
+          .sort((a: Post, b: Post) => b.dislikes - a.dislikes);
+
+        sortedOtherUserPosts = data
+          .filter((post: Post) => user?.username !== post.userName)
+          .sort((a: Post, b: Post) => b.dislikes - a.dislikes);
+      } else if (sortOption === 'comments') {
+        sortedUserPosts = data
+          .filter((post: Post) => user?.username === post.userName)
+          .sort((a: Post, b: Post) => (comments[b.id]?.length || 0) - (comments[a.id]?.length || 0));
+
+        sortedOtherUserPosts = data
+          .filter((post: Post) => user?.username !== post.userName)
+          .sort((a: Post, b: Post) => (comments[b.id]?.length || 0) - (comments[a.id]?.length || 0));
+      } else {
+        sortedUserPosts = data.filter((post: Post) => user?.username === post.userName);
+        sortedOtherUserPosts = data.filter((post: Post) => user?.username !== post.userName);
+      }
+
+      setPosts(sortedUserPosts);
+      setOtherUserPosts(sortedOtherUserPosts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+
+  fetchPosts();
+}, [user, sortOption, comments]);
 
   return (
     <div>
