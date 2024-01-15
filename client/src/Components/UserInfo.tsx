@@ -108,7 +108,7 @@ function UserInfoPage() {
             type="text"
             name="address"
             placeholder="Enter your address"
-            value={userData.address}
+            value={userData.address} 
             onChange={(e) => setUserData({ ...userData, address: e.target.value })}  // Add this line
           />
         </div>
@@ -152,7 +152,7 @@ function UserInfoPage() {
             type="email"
             name="email"
             placeholder="Enter your email"
-            value={userData.email}
+            value={userData.email} readOnly
             onChange={(e) => setUserData({ ...userData, email: e.target.value })}  // Add this line
           />
         </div>

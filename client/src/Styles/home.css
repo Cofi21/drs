@@ -80,13 +80,25 @@ body {
  }
 
   
-  #search-bar {
-    width: 30%;
+  
+
+  .sort-options {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .sort-label {
+    margin-right: 10px;
+    color: #ddd;
+  }
+  
+  .sort-select {
+    font-size: 16px;
     padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #555; /* Darker border color */
+    border: 1px solid #555;
     border-radius: 4px;
-    background-color: #222; /* Darker background color for input elements */
+    background-color: #222;
     color: #ddd;
   }
   

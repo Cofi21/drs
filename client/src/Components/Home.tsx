@@ -1,38 +1,43 @@
 // HomePage.js
 import '../Styles/home.css';
+import React, { useState, useEffect } from 'react';
 import PostSection from './PostSection';
 import UserSection from './UserSection';
 import CreateThread from './CreateThread';
 
 function HomePage() {
      
-     function performSearch(): React.MouseEventHandler<HTMLButtonElement> | undefined {
-          throw new Error('Function not implemented.');
-     }
+     const [sortOption, setSortOption] = useState<'likes' | 'dislikes' | 'comments'>(
+          localStorage.getItem('sortOption') as 'likes' | 'dislikes' | 'comments' || 'likes' 
+          //smestamo stanje u local storage da nam ne bi uvek vracao na default stanje 
+        );
+      
 
-     function createPost(): React.MouseEventHandler<HTMLButtonElement> | undefined {
-          throw new Error('Function not implemented.');
-     }
-
-     function likePost(arg0: number) {
-          throw new Error('Function not implemented.');
-     }
-     function dislikePost(arg0: number) {
-          throw new Error('Function not implemented.');
-     }
+     const handleSortChange = (option: 'likes' | 'dislikes' | 'comments') => {
+          setSortOption(option);
+        };
+      
+        useEffect(() => {
+          // Save the sortOption to localStorage when it changes
+          localStorage.setItem('sortOption', sortOption);
+        }, [sortOption]); 
 
   return (
       <div className="container">
         <h1>Forum</h1>     
       <UserSection></UserSection>
 
-        <div className="media">
-            <input type="text" id="search-bar" placeholder="Enter your search term"/>
-            <button className="btn search-btn" >Search</button>
+      <div className="sort-options">
+        <label className="sort-label">Sort by:</label>
+        <select className="sort-select" onChange={(e) => handleSortChange(e.target.value as 'likes' | 'dislikes' | 'comments')} value={sortOption}>
+          <option value="likes">Most Likes</option>
+          <option value="dislikes">Most Dislikes</option>
+          <option value="comments">Most Comments</option>
+        </select>
         </div>
      <CreateThread></CreateThread>
         
-     <PostSection></PostSection>
+     <PostSection sortOption={sortOption}></PostSection>
         
         
         <div id="search-results">

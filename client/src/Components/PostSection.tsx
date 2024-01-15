@@ -17,7 +17,7 @@ interface Comment {
   author: string;
 }
 
-const App: React.FC = () => {
+const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sortOption }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [newComment, setNewComment] = useState('');
@@ -148,12 +148,21 @@ const handleDislike = async (postId: number) => {
       try {
         const response = await fetch('http://localhost:3003/auth/');
         const data = await response.json();
-
-        const userPosts: Post[] = data.filter((post: Post) => user?.username === post.userName);
-        setPosts(userPosts);
-
-        const otherUserPosts: Post[] = data.filter((post: Post) => user?.username !== post.userName);
-        setOtherUserPosts(otherUserPosts);
+  
+        let sortedPosts: Post[] = [];
+        //za sad radi samo za lajkoce i dislajkove jer nemamo nacin da izvucemo broj komentara na datom postu !!!!!!
+        if (sortOption === 'likes') {
+          sortedPosts = data.sort((a: Post, b: Post) => b.likes - a.likes);
+        } else if (sortOption === 'dislikes') {
+          sortedPosts = data.sort((a: Post, b: Post) => b.dislikes - a.dislikes);
+        } else if (sortOption === 'comments') {
+          sortedPosts = data.sort((a: Post, b: Post) => (comments[b.id]?.length || 0) - (comments[a.id]?.length || 0));
+        } else {
+          
+          sortedPosts = data;
+        }
+  
+        setPosts(sortedPosts);
       } catch (error) {
         console.error('Error fetching posts:', error);
       }
