@@ -12,6 +12,7 @@ interface Post {
   dislikes: number;
   likedBy: string[];
   dislikedBy: string[];
+  commentNumber: number;
 }
 
 interface CreateThreadProps {
@@ -55,6 +56,7 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           dislikes: 0,
           likedBy: [],
           dislikedBy: [],
+          commentNumber: 0,
         };
         console.info
         addPost(newPost);

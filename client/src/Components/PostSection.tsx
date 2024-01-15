@@ -10,6 +10,7 @@ interface Post {
   userName: string;
   likes: number;
   dislikes: number;
+  commentNumber: number;
 }
 
 interface Comment {
@@ -58,7 +59,6 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
           author: user?.username,
         }),
       });
-
       if (response.ok) {
         const newCommentData: Comment = await response.json();
         setComments((prevComments) => {
@@ -147,7 +147,7 @@ const handleDislike = async (postId: number) => {
 
 const handlePostClick = (postId: number) => {
   // Navigacija na stranicu sa odgovarajućim ID posta
-  return navigate(`/theme/${postId}`);
+//  return navigate(`/theme/${postId}`);
 };
 
 useEffect(() => {
@@ -178,12 +178,13 @@ useEffect(() => {
       } else if (sortOption === 'comments') {
         sortedUserPosts = data
           .filter((post: Post) => user?.username === post.userName)
-          .sort((a: Post, b: Post) => (comments[b.id]?.length || 0) - (comments[a.id]?.length || 0));
-
+          .sort((a: Post, b: Post) => b.commentNumber - a.commentNumber);
+      
         sortedOtherUserPosts = data
           .filter((post: Post) => user?.username !== post.userName)
-          .sort((a: Post, b: Post) => (comments[b.id]?.length || 0) - (comments[a.id]?.length || 0));
-      } else {
+          .sort((a: Post, b: Post) => b.commentNumber - a.commentNumber);
+      }
+      else {
         sortedUserPosts = data.filter((post: Post) => user?.username === post.userName);
         sortedOtherUserPosts = data.filter((post: Post) => user?.username !== post.userName);
       }
@@ -198,7 +199,8 @@ useEffect(() => {
   fetchPosts();
 }, [user, sortOption, comments]);
 
-  return (
+  return ( 
+    
     <div>
       {posts.length > 0 ? (
         <div className='post'>
@@ -224,13 +226,13 @@ useEffect(() => {
                 <div className="comments-section">
                   <h3>Comments</h3>
                   <ul className="comment-list">
-                    {comments[post.id]?.map((comment: Comment) => (
-                      <li key={comment.id} className="comment">
-                        <p className="comment-content">{comment.content}</p>
-                        <p className="comment-author">Author: {comment.author}</p>
-                      </li>
-                    ))}
-                  </ul>
+                  {comments[post.id]?.map((comment: Comment) => (
+                    <li key={comment.id} className="comment">
+                      <p className="comment-content">{comment.content}</p>
+                      <p className="comment-author">Author: {comment.author}</p>
+                    </li>
+                  ))}
+                </ul>
                   <div className="comment-form">
                     <textarea
                       value={newComment}
@@ -289,7 +291,7 @@ useEffect(() => {
     ) : (
       <p>There are no posts</p>
     )}
-  </div>
+  </div> 
   );
 };
 

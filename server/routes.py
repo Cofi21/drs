@@ -128,6 +128,7 @@ def create_post():
             userName=data['userName'],
             likes=0,
             dislikes=0,
+            commentNumber=0,
         )
 
         db.session.add(new_post)
@@ -166,7 +167,8 @@ def onload():
                        'likes': post.likes,
                        'dislikes': post.dislikes,
                        'likedBy': post.likedBy,
-                       'dislikedBy': post.dislikedBy}
+                       'dislikedBy': post.dislikedBy,
+                       'commentNumber': post.commentNumber}
                       for post in posts]
 
         return jsonify(posts_list)
@@ -180,15 +182,27 @@ def post_comments(post_id):
         post = Post.query.get_or_404(post_id)
         comments = Comment.query.filter_by(post_id=post_id).all()
         comments_list = [{'id': comment.id, 'content': comment.content, 'author': {'id': comment.author.id, 'username': comment.author.username}} for comment in comments]
+        print(comments_list)
         return jsonify({'post': {'id': post.id, 'title': post.title, 'comments': comments_list}})
 
     elif request.method == 'POST':
         data = request.get_json()
         print('Received data:', data)
+
+        # Create a new comment
         new_comment = Comment(content=data.get('content'), post_id=post_id, author=data.get('author'))
+
+        # Add the new comment to the database
         db.session.add(new_comment)
         db.session.commit()
+
+        # Update the commentNumber for the associated post
+        post = Post.query.get_or_404(post_id)
+        post.commentNumber += 1
+        db.session.commit()
+
         return jsonify({'message': 'Comment added successfully'})
+
 
 
     
@@ -246,7 +260,8 @@ def get_post_by_id(post_id):
                 'likes': post.likes,
                 'dislikes': post.dislikes,
                 'likedBy': post.likedBy,
-                'dislikedBy': post.dislikedBy
+                'dislikedBy': post.dislikedBy,
+                'commentNumber' : post.commentNumber
             }
             return jsonify(post_data), 200
         else:

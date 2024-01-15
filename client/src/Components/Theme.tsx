@@ -29,27 +29,30 @@ function ThemePage() {
 
   useEffect(() => {
     const fetchPostData = async () => {
-        try {
-          // Fetch post data
-          const postResponse = await fetch(`http://localhost:3003/auth/theme/${postId}`, {
-
-          });
-          const postData: Post = await postResponse.json();
-          setPost(postData);
-      
-          // Fetch comments for the post using the new route
-          const commentsResponse = await fetch(`http://localhost:3003/auth/theme/${postId}/comments`);
-          const commentsData: Comment[] = await commentsResponse.json();
-          setComments(commentsData);
-        } catch (error) {
-          console.error('Error fetching post data:', error);
-        }
-      };
-      
-      if (postId) {
-        fetchPostData();
+      try {
+        console.log('Fetching post data for postId:', postId);
+  
+        // Fetch post data
+        const postResponse = await fetch(`http://localhost:3003/auth/theme/${postId}`);
+        const postData: Post = await postResponse.json();
+        console.log('Post data:', postData);
+        setPost(postData);
+  
+        // Fetch comments for the post using the new route
+        const commentsResponse = await fetch(`http://localhost:3003/auth/theme/${postId}/comments`);
+        const commentsData: Comment[] = await commentsResponse.json();
+        console.log('Comments data:', commentsData);
+        setComments(commentsData);
+      } catch (error) {
+        console.error('Error fetching post data:', error);
       }
+    };
+  
+    if (postId) {
+      fetchPostData();
+    }
   }, [postId]);
+  
 
   if (!post) {
     return <p>Loading...</p>;
