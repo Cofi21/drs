@@ -49,7 +49,7 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
 
   const handleCommentSubmit = async (postId: number) => {
     try {
-      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
+      await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,19 +59,34 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
           author: user?.username,
         }),
       });
-      if (response.ok) {
-        const newCommentData: Comment = await response.json();
-        setComments((prevComments) => {
-          const updatedComments = { ...prevComments };
-          updatedComments[postId] = [...(updatedComments[postId] || []), newCommentData];
-          return updatedComments;
-        });
-        setNewComment('');
-      } else {
-        console.error('Failed to add comment:', response.statusText);
-      }
+  
+      // Clear the comment input field after submitting
+      setNewComment('');
+      
+  
+      // Optionally, you can trigger a refetch of comments from the server to update the local state
+      fetchComments(postId);
     } catch (error) {
       console.error('Error adding comment:', error);
+    }
+  };
+  const fetchComments = async (postId:number) => {
+    try {
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`,{
+      method: 'GET',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },});
+      const data = await response.json();
+      console.log('Response data:', data);
+  
+      setComments((prevComments) => ({
+        ...prevComments,
+        [postId]: data.post.comments,
+      }));
+    } catch (error) {
+      console.error('Error fetching comments:', error);
     }
   };
   /* dodata pocetna logika za lajkovanje i dislajkovanje postova(kad se refreshuje stranica korisnik moze ponovo lajkovati ili dislajkovati)*/
@@ -145,12 +160,22 @@ const handleDislike = async (postId: number) => {
   }
 };
 
-const handlePostClick = (postId: number) => {
+//const handlePostClick = (postId: number) => {
   // Navigacija na stranicu sa odgovarajućim ID posta
 //  return navigate(`/theme/${postId}`);
-};
+//};
 
 useEffect(() => {
+    // Fetch posts initially
+    fetchPosts();
+
+    // Set up polling interval to fetch posts every 5 seconds
+    const intervalId = setInterval(fetchPosts, 200);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [user, sortOption, comments]);
+
   const fetchPosts = async () => {
     try {
       const response = await fetch('http://localhost:3003/auth/');
@@ -196,8 +221,6 @@ useEffect(() => {
     }
   };
 
-  fetchPosts();
-}, [user, sortOption, comments]);
 
   return ( 
     
@@ -207,7 +230,7 @@ useEffect(() => {
           <ul className="post-list">
             {posts.map((post) => (
               <li key={post.id} className="post"
-              onClick={() => handlePostClick(post.id)}>
+              >
                 <a
                   onClick={() => handleDeletePost(post.id)}
                   style={{ cursor: 'pointer', textDecoration: 'underline' }}
@@ -255,7 +278,7 @@ useEffect(() => {
       <div className='post'>
         <ul className="post-list">
           {otherPosts.map((post) => (
-            <li key={post.id} className="post" onClick={() => handlePostClick(post.id)}>
+            <li key={post.id} className="post" >
               <h2 className="post-title">{post.title}</h2>
               <p className="post-content">{post.content}</p>
               <p className="post-author">Author: {post.userName}</p>

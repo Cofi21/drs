@@ -110,19 +110,8 @@ const PostFunction: React.FC = () => {
   return (
     <div>
       <CreateThread addPost={addPost} currentUser={user?.username ?? 'Guest'} />
-      <h1>Your posts</h1>
-      <div >
-      <ul className="post-list">
-        {posts.map((post) => (
-          <li key={post.id} className="post">
-            <a><u>Delete post</u></a>
-            <h2 className="post-title">{post.title}</h2>
-            <p className="post-content">{post.content}</p>
-            <p className="post-author">Author: {post.userName}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+      
+      
     </div>
   );
 };
