@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../Styles/post_section.css';
 import { AuthProvider, useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Post {
   id: number;
@@ -23,6 +24,7 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
   const [newComment, setNewComment] = useState('');
   const { user } = useAuth();
   const [otherPosts, setOtherUserPosts] = useState<Post[]>([]);
+  const navigate = useNavigate();
   
 //DELETE TRENUTNO NE RADI AKO POSTOJI KOMENTAR NA POSTU
   const handleDeletePost = async (postId: number) => {
@@ -143,6 +145,11 @@ const handleDislike = async (postId: number) => {
   }
 };
 
+const handlePostClick = (postId: number) => {
+  // Navigacija na stranicu sa odgovarajućim ID posta
+  return navigate(`/theme/${postId}`);
+};
+
 useEffect(() => {
   const fetchPosts = async () => {
     try {
@@ -197,7 +204,8 @@ useEffect(() => {
         <div className='post'>
           <ul className="post-list">
             {posts.map((post) => (
-              <li key={post.id} className="post">
+              <li key={post.id} className="post"
+              onClick={() => handlePostClick(post.id)}>
                 <a
                   onClick={() => handleDeletePost(post.id)}
                   style={{ cursor: 'pointer', textDecoration: 'underline' }}
@@ -205,7 +213,7 @@ useEffect(() => {
                   Delete post
                 </a>
                 <h2 className="post-title">{post.title}</h2>
-                <p className="post-content">{post.content}</p>
+                <p className="post-content" >{post.content}</p>
                 <p className="post-author">Author: {post.userName}</p>
                 <p className="post-likes">Likes: {post.likes}</p>
                 <p className="post-dislikes">Dislikes: {post.dislikes}</p>
@@ -245,7 +253,7 @@ useEffect(() => {
       <div className='post'>
         <ul className="post-list">
           {otherPosts.map((post) => (
-            <li key={post.id} className="post">
+            <li key={post.id} className="post" onClick={() => handlePostClick(post.id)}>
               <h2 className="post-title">{post.title}</h2>
               <p className="post-content">{post.content}</p>
               <p className="post-author">Author: {post.userName}</p>
