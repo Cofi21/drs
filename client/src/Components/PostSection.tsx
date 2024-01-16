@@ -70,20 +70,14 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
       console.error('Error adding comment:', error);
     }
   };
-  const fetchComments = async (postId:number) => {
+  const fetchComments = async (postId: number) => {
     try {
-      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`,{
-      method: 'GET',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },});
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`);
       const data = await response.json();
-      console.log('Response data:', data);
-  
+
       setComments((prevComments) => ({
         ...prevComments,
-        [postId]: data.post.comments,
+        [postId]: data,
       }));
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -168,7 +162,8 @@ const handleDislike = async (postId: number) => {
 useEffect(() => {
     // Fetch posts initially
     fetchPosts();
-
+    posts.forEach((post) => fetchComments(post.id));
+    
     // Set up polling interval to fetch posts every 5 seconds
     const intervalId = setInterval(fetchPosts, 200);
 
@@ -213,9 +208,12 @@ useEffect(() => {
         sortedUserPosts = data.filter((post: Post) => user?.username === post.userName);
         sortedOtherUserPosts = data.filter((post: Post) => user?.username !== post.userName);
       }
-
+      
       setPosts(sortedUserPosts);
       setOtherUserPosts(sortedOtherUserPosts);
+      for (const post of data) {
+        await fetchComments(post.id);
+      }
     } catch (error) {
       console.error('Error fetching posts:', error);
     }

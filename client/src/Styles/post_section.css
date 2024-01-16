@@ -49,60 +49,61 @@
    }
 
 
-.comment-list {
-     list-style-type: none;
-     padding: 0;
-   }
-   
-   .comment {
-     border: 1px solid #ddd;
-     margin-bottom: 8px;
-     padding: 8px;
-     border-radius: 4px;
-     background-color: #f9f9f9;
-     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-   }
-   
-   .comment-content {
-     font-size: 1rem;
-     margin-bottom: 4px;
-   }
-   
-   .comment-author {
-     font-size: 0.8rem;
-     color: #888;
-   }
-   
-   .comment-form {
-     margin-top: 16px;
-   }
-   
-   .comment-form textarea {
-     width: 98%;
-     padding: 8px;
-     margin-bottom: 8px;
-     border: 1px solid #555; /* Darker border color */
-     background-color: #222; /* Darker background color for input elements */
-     color: #ddd;
-   }
-   
-   .comment-form button {
-     padding: 8px;
-     font-size: 0.9rem;
-     background-color: #007bff;
-     color: #fff;
-     border: none;
-     border-radius: 4px;
-     cursor: pointer;
-   }
-   .comment-form button + button {
+   .comment-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .comment {
+    border: 1px solid #ddd;
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .comment-content {
+    font-size: 1rem;
+    margin-bottom: 4px;
+    color: #333; /* Updated color */
+  }
+  
+  .comment-author {
+    font-size: 0.8rem;
+    color: #888;
+  }
+  
+  .comment-form {
+    margin-top: 16px;
+  }
+  
+  .comment-form textarea {
+    width: 98%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #555;
+    background-color: #222;
+    color: #ddd;
+  }
+  
+  .comment-form button {
+    padding: 8px;
+    font-size: 0.9rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .comment-form button + button {
     margin-left: 10px;
   }
   
-   
-   .comment-form button:hover {
-     background-color: #0056b3;
-   }
+  .comment-form button:hover {
+    background-color: #0056b3;
+  }
 
    a{
     color: red;

@@ -199,17 +199,22 @@ def post_comments(post_id):
 
 
 @auth_blueprint.route('/postSection/<int:post_id>/comments', methods=['GET'])
-def get_post_comments(post_id):
+def get_comments(post_id):
     try:
-        post = Post.query.get_or_404(post_id)
+        # Fetch comments for the specified post_id
         comments = Comment.query.filter_by(post_id=post_id).all()
-        comments_list = [{'id': comment.id, 'content': comment.content, 'author': comment.author.username} for comment in comments]
 
-        return jsonify({'post': {'id': post.id, 'title': post.title, 'comments': comments_list}})
+        # Convert comments to a list of dictionaries
+        comments_list = [{
+            'id': comment.id,
+            'content': comment.content,
+            'author': comment.author
+        } for comment in comments]
+
+        return jsonify(comments_list), 200
     except Exception as e:
         print(f"Error fetching comments: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
-
 
   
 
