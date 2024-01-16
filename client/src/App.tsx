@@ -4,6 +4,7 @@ import RegistrationPage from './Components/Registration';
 import HomePage from './Components/Home';
 import { AuthProvider } from './Components/AuthContext';
 import UserInfoPage from './Components/UserInfo';
+import ThemePage from './Components/Theme';
 
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
           <Route path="/registration" element={<RegistrationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path='/userInfo/:id' element={<UserInfoPage/>}/>
+          <Route path='/theme/:postId' element={<ThemePage/>}/>
         </Routes>
       </AuthProvider>
     </Router>

@@ -20,7 +20,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-    from routes import login, register, get_user_data, create_post, onload, get_post_by_id
+    from routes import login, register, get_user_data, create_post, onload, get_post_by_id, get_comments, post_comments
     # Import routes after initializing the Flask app and SQLAlchemy
     
     app.run(debug=True, host="0.0.0.0", port=3003)

@@ -19,11 +19,18 @@
      background-color: rgba(255, 255, 255, 0.1);
     }
 
-    .post:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+    #openPostButton{
+      width: 150px;
+      float: right;
+      padding: 10px;
+      background-color: #222;
+      color: #f9f9f9;
     }
-    
+
+    #openPostButton:hover{
+      background-color:#990000;
+      transition-duration: 500ms;
+    }
    
    .post-title {
      font-size: 1.5rem;
@@ -57,7 +64,7 @@
   .comment {
     border: 1px solid #ddd;
     margin-bottom: 8px;
-    padding: 8px;
+    padding: 4px;
     border-radius: 4px;
     background-color: #f9f9f9;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -68,11 +75,15 @@
     font-size: 1rem;
     margin-bottom: 4px;
     color: #333; /* Updated color */
+    text-align: left;
+    padding:8px;
   }
 
   .comment-author {
     font-size: 0.8rem;
     color: #222;
+    text-align: left;
+    padding-left: 10px;
   }
   
   .comment-form {
@@ -89,7 +100,7 @@
   }
   
   .comment-form button {
-    padding: 8px;
+    padding: 6px;
     font-size: 0.9rem;
     background-color: #007bff;
     color: #fff;

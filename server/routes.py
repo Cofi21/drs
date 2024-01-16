@@ -175,7 +175,7 @@ def onload():
         print(f"Error fetching posts: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 #Promeniti ovaj comment GET i POST
-@auth_blueprint.route('/postSection/<int:post_id>/comments', methods=['POST'])
+@auth_blueprint.route('/theme/<int:post_id>/comments', methods=['POST'])
 def post_comments(post_id):
     
         
@@ -197,7 +197,7 @@ def post_comments(post_id):
         return jsonify({'message': 'Comment added successfully'})
 
 
-@auth_blueprint.route('/postSection/<int:post_id>/comments', methods=['GET'])
+@auth_blueprint.route('/theme/<int:post_id>/comments', methods=['GET'])
 def get_comments(post_id):
     try:
         # Fetch comments for the specified post_id
@@ -209,7 +209,7 @@ def get_comments(post_id):
             'content': comment.content,
             'author': comment.author,
             'likes': comment.likes,
-            'dislikes': comment.dislikes
+            'dislikes': comment.dislikes,
         } for comment in comments]
 
         return jsonify(comments_list), 200
@@ -320,27 +320,4 @@ def delete_comment(post_id, comment_id):
             return jsonify({'error': 'Comment not found'}), 404
     except Exception as e:
         print(f"Error deleting comment: {e}")
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-
-@auth_blueprint.route('/theme/<int:post_id>', methods=['GET'])
-def get_post_by_id(post_id):
-    try:
-        post = Post.query.get(post_id)
-
-        if post:
-            post_data = {
-                'id': post.id,
-                'title': post.title,
-                'content': post.content,
-                'userName': post.userName,
-                'likes': post.likes,
-                'dislikes': post.dislikes,
-                'commentNumber' : post.commentNumber
-            }
-            return jsonify(post_data), 200
-        else:
-            return jsonify({'error': 'Post not found'}), 404
-    except Exception as e:
-        print(f"Error fetching post: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
