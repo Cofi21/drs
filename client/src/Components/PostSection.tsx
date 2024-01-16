@@ -17,6 +17,8 @@ interface Comment {
   id: number;
   content: string;
   author: string;
+  likes: number;
+  dislikes: number;
 }
 
 const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sortOption }) => {
@@ -47,6 +49,33 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
     }
   };
 
+  const handleDeleteComment = async (postId: number, commentId: number) => {
+    try {
+      if (!user) {
+        console.error('User not authenticated. Cannot delete comment.');
+        return;
+      }
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        // Update the local state to remove the deleted comment
+        setComments((prevComments) => ({
+          ...prevComments,
+          [postId]: prevComments[postId].filter((comment) => comment.id !== commentId),
+        }));
+      } else {
+        console.error('Failed to delete comment:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
+  };
+
   const handleCommentSubmit = async (postId: number) => {
     try {
       await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
@@ -57,6 +86,8 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
         body: JSON.stringify({
           content: newComment,
           author: user?.username,
+          likes: 0, // Initial like count for the new comment
+          dislikes: 0, // Initial dislike count for the new comment
         }),
       });
   
@@ -68,6 +99,68 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
       //fetchComments(postId);
     } catch (error) {
       console.error('Error adding comment:', error);
+    }
+  };
+  
+
+  const handleLikeComment = async (postId: number, commentId: number) => {
+    try {
+
+      if (!user) {
+        console.warn('User is not logged in. Cannot like the post.');
+        return;
+      }
+      // Send a request to your server to increment the likes for the specific comment
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments/${commentId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        // Update the local state accordingly
+        setComments((prevComments) => ({
+          ...prevComments,
+          [postId]: prevComments[postId].map((comment) =>
+            comment.id === commentId ? { ...comment, likes: comment.likes + 1 } : comment
+          ),
+        }));
+      } else {
+        console.error('Failed to like comment:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error liking comment:', error);
+    }
+  };
+  
+  const handleDislikeComment = async (postId: number, commentId: number) => {
+    try {
+      if (!user) {
+        console.warn('User is not logged in. Cannot dislike the post.');
+        return;
+      }
+      // Send a request to your server to increment the dislikes for the specific comment
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments/${commentId}/dislike`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        // Update the local state accordingly
+        setComments((prevComments) => ({
+          ...prevComments,
+          [postId]: prevComments[postId].map((comment) =>
+            comment.id === commentId ? { ...comment, dislikes: comment.dislikes + 1 } : comment
+          ),
+        }));
+      } else {
+        console.error('Failed to dislike comment:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error disliking comment:', error);
     }
   };
   const fetchComments = async (postId: number) => {
@@ -223,6 +316,7 @@ useEffect(() => {
   return ( 
     
     <div>
+    <h1>My Posts</h1>
       {posts.length > 0 ? (
         <div className='post'>
           <ul className="post-list">
@@ -248,11 +342,18 @@ useEffect(() => {
                   <h3>Comments</h3>
                   <ul className="comment-list">
                   {comments[post.id]?.map((comment: Comment) => (
-                    <li key={comment.id} className="comment">
-                      <p className="comment-content">{comment.content}</p>
-                      <p className="comment-author">Author: {comment.author}</p>
-                    </li>
-                  ))}
+  <li key={comment.id} className="comment">
+    <p className="comment-content">{comment.content}</p>
+    <p className="comment-author">Author: {comment.author}</p>
+    <p className="comment-content">Likes: {comment.likes}</p>
+<p className="comment-content">Dislikes: {comment.dislikes}</p>
+    <div className="comment-form">
+      <button onClick={() => handleLikeComment(post.id, comment.id)}>Like</button>
+      <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike</button>
+      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
+    </div>
+  </li>
+))}
                 </ul>
                   <div className="comment-form">
                     <textarea
@@ -289,12 +390,19 @@ useEffect(() => {
               <div className="comments-section">
                 <h3>Comments</h3>
                 <ul className="comment-list">
-                  {comments[post.id]?.map((comment: Comment) => (
-                    <li key={comment.id} className="comment">
-                      <p className="comment-content">{comment.content}</p>
-                      <p className="comment-author">Author: {comment.author}</p>
-                    </li>
-                  ))}
+                {comments[post.id]?.map((comment: Comment) => (
+  <li key={comment.id} className="comment">
+    <p className="comment-content">{comment.content}</p>
+    <p className="comment-author">Author: {comment.author}</p>
+    <p className="comment-content">Likes: {comment.likes}</p>
+<p className="comment-content">Dislikes: {comment.dislikes}</p>
+    <div className="comment-form">
+      <button onClick={() => handleLikeComment(post.id, comment.id)}>Like</button>
+      <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike</button>
+      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
+    </div>
+  </li>
+))}
                 </ul>
                 <div className="comment-form">
                   <textarea

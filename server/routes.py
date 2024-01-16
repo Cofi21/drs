@@ -166,8 +166,6 @@ def onload():
                        'userName': post.userName,
                        'likes': post.likes,
                        'dislikes': post.dislikes,
-                       'likedBy': post.likedBy,
-                       'dislikedBy': post.dislikedBy,
                        'commentNumber': post.commentNumber}
                       for post in posts]
 
@@ -208,7 +206,9 @@ def get_comments(post_id):
         comments_list = [{
             'id': comment.id,
             'content': comment.content,
-            'author': comment.author
+            'author': comment.author,
+            'likes': comment.likes,
+            'dislikes': comment.dislikes
         } for comment in comments]
 
         return jsonify(comments_list), 200
@@ -273,8 +273,6 @@ def get_post_by_id(post_id):
                 'userName': post.userName,
                 'likes': post.likes,
                 'dislikes': post.dislikes,
-                'likedBy': post.likedBy,
-                'dislikedBy': post.dislikedBy,
                 'commentNumber' : post.commentNumber
             }
             return jsonify(post_data), 200
@@ -284,3 +282,44 @@ def get_post_by_id(post_id):
         print(f"Error fetching post: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@auth_blueprint.route('/postSection/<int:post_id>/comments/<int:comment_id>/like', methods=['POST'])
+def like_comment(comment_id,post_id):
+    comment = Comment.query.get_or_404(comment_id)
+
+    # Increment likes for the comment
+    comment.likes += 1
+    db.session.commit()
+
+    return jsonify({'message': 'Comment liked successfully', 'likes': comment.likes}), 200
+    
+@auth_blueprint.route('/postSection/<int:post_id>/comments/<int:comment_id>/dislike', methods=['POST'])
+def dislike_comment(post_id, comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+
+    # Increment dislikes for the comment
+    comment.dislikes += 1
+    db.session.commit()
+
+    return jsonify({'message': 'Comment disliked successfully', 'dislikes': comment.dislikes}), 200
+
+@auth_blueprint.route('/postSection/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
+def delete_comment(post_id, comment_id):
+    try:
+        # Find the comment by ID
+        comment_to_delete = Comment.query.get(comment_id)
+
+        if comment_to_delete:
+            # Delete the comment
+            db.session.delete(comment_to_delete)
+
+            # Update the commentNumber for the associated post
+            post = Post.query.get_or_404(post_id)
+            post.commentNumber -= 1
+            db.session.commit()
+
+            return jsonify({'message': 'Comment deleted successfully'})
+        else:
+            return jsonify({'error': 'Comment not found'}), 404
+    except Exception as e:
+        print(f"Error deleting comment: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500

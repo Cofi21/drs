@@ -22,8 +22,6 @@ class Post(db.Model):
     userName = db.Column(db.String(50))
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
-    likedBy = db.Column(db.PickleType)
-    dislikedBy = db.Column(db.PickleType)
     comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")  #bez ovog delete-oprhan ne radi brisanje
     commentNumber = db.Column(db.Integer, nullable=False)
 
@@ -32,5 +30,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text)
     author = db.Column(db.String(50), nullable=False)
+    likes = db.Column(db.Integer, default=0)
+    dislikes = db.Column(db.Integer, default=0)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
 
