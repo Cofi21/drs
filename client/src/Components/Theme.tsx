@@ -199,6 +199,61 @@ function ThemePage() {
     }
   };
 
+const handleLikePost = async (postId: number) => {
+    try {
+      if (!user) {
+        console.warn('User is not logged in. Cannot like the post.');
+        return;
+      }
+  
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        setPost((prevPost) => ({
+          ...prevPost!,
+          likes: (prevPost?.likes || 0) + 1,
+        }));
+      } else {
+        console.error('Failed to like post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+
+  const handleDislikePost = async (postId: number) => {
+    try {
+      if (!user) {
+        console.warn('User is not logged in. Cannot like the post.');
+        return;
+      }
+  
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/dislike`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        setPost((prevPost) => ({
+          ...prevPost!,
+          dislikes: (prevPost?.dislikes || 0) + 1,
+        }));
+      } else {
+        console.error('Failed to like post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
 
   
   if (!post) {
@@ -214,8 +269,8 @@ function ThemePage() {
       <hr></hr>
       <p className="post-author">Author: {post.userName}</p>
       <div className="comment-form">
-        <button>Like {post.likes}</button>
-        <button>Dislike {post.dislikes}</button>
+        <button onClick={() => handleLikePost(post.id)}>Like {post.likes}</button>
+        <button onClick={() => handleDislikePost(post.id)}>Dislike {post.dislikes}</button>
       </div>
       <div className="comments-section">
         <h3>Comments</h3>

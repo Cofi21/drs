@@ -321,3 +321,6 @@ def delete_comment(post_id, comment_id):
     except Exception as e:
         print(f"Error deleting comment: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
+    
+
+

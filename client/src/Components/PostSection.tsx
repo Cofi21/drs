@@ -234,6 +234,10 @@ useEffect(() => {
               <p className="post-dislikes">Dislikes: {post.dislikes}</p>
               
               <button id="openPostButton" onClick={() => handlePostClick(post.id)}>Open theme</button>
+              <div className="comment-form">
+                  <button onClick={() => handleLike(post.id)}>Like</button>
+                  <button onClick={() => handleDislike(post.id)}>Dislike</button>
+                </div>
             </li>
           ))}
         </ul>
