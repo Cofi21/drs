@@ -55,6 +55,7 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
         console.error('User not authenticated. Cannot delete comment.');
         return;
       }
+      
       const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments/${commentId}`, {
         method: 'DELETE',
         headers: {
@@ -76,9 +77,10 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
     }
   };
 
+
   const handleCommentSubmit = async (postId: number) => {
     try {
-      await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,23 +88,25 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
         body: JSON.stringify({
           content: newComment,
           author: user?.username,
-          likes: 0, // Initial like count for the new comment
-          dislikes: 0, // Initial dislike count for the new comment
+          likes: 0,
+          dislikes: 0,
         }),
       });
   
-      // Clear the comment input field after submitting
-      setNewComment('');
-      
+      if (response.ok) {
+        // Clear the comment input field after submitting
+        setNewComment('');
   
-      // Optionally, you can trigger a refetch of comments from the server to update the local state
-      //fetchComments(postId);
+        // Fetch comments again after the new comment is added
+        await fetchComments(postId);
+      } else {
+        console.error('Failed to add comment:', response.statusText);
+      }
     } catch (error) {
       console.error('Error adding comment:', error);
     }
   };
   
-
   const handleLikeComment = async (postId: number, commentId: number) => {
     try {
 
@@ -163,19 +167,23 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
       console.error('Error disliking comment:', error);
     }
   };
-  const fetchComments = async (postId: number) => {
-    try {
-      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`);
-      const data = await response.json();
+const fetchComments = async (postId: number) => {
+  try {
+    const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/comments`);
+    const data: Comment[] = await response.json();
 
-      setComments((prevComments) => ({
-        ...prevComments,
-        [postId]: data,
-      }));
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
-  };
+    setComments((prevComments) => ({
+      ...prevComments,
+      [postId]: data.map((comment: Comment) => ({
+        ...comment,
+        author: comment.author || (user?.username ?? ''), // Use the logged-in user's username if author is not present
+      })),
+    }));
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+  }
+};
+
   /* dodata pocetna logika za lajkovanje i dislajkovanje postova(kad se refreshuje stranica korisnik moze ponovo lajkovati ili dislajkovati)*/
   const handleLike = async (postId: number) => {
     try {
@@ -247,10 +255,6 @@ const handleDislike = async (postId: number) => {
   }
 };
 
-//const handlePostClick = (postId: number) => {
-  // Navigacija na stranicu sa odgovarajućim ID posta
-//  return navigate(`/theme/${postId}`);
-//};
 
 useEffect(() => {
     // Fetch posts initially
@@ -258,7 +262,7 @@ useEffect(() => {
     posts.forEach((post) => fetchComments(post.id));
     
     // Set up polling interval to fetch posts every 5 seconds
-    const intervalId = setInterval(fetchPosts, 200);
+    const intervalId = setInterval(fetchPosts, 500);
 
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
@@ -276,7 +280,7 @@ useEffect(() => {
         sortedUserPosts = data
           .filter((post: Post) => user?.username === post.userName)
           .sort((a: Post, b: Post) => b.likes - a.likes);
-
+ 
         sortedOtherUserPosts = data
           .filter((post: Post) => user?.username !== post.userName)
           .sort((a: Post, b: Post) => b.likes - a.likes);
@@ -342,18 +346,20 @@ useEffect(() => {
                   <h3>Comments</h3>
                   <ul className="comment-list">
                   {comments[post.id]?.map((comment: Comment) => (
-  <li key={comment.id} className="comment">
-    <p className="comment-content">{comment.content}</p>
-    <p className="comment-author">Author: {comment.author}</p>
-    <p className="comment-content">Likes: {comment.likes}</p>
-<p className="comment-content">Dislikes: {comment.dislikes}</p>
-    <div className="comment-form">
-      <button onClick={() => handleLikeComment(post.id, comment.id)}>Like</button>
-      <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike</button>
-      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
-    </div>
-  </li>
-))}
+                  <li key={comment.id} className="comment">
+                    <p className="comment-content">{comment.content}</p>
+                    <p className="comment-author">Author: {comment.author}</p>
+                    <p className="comment-content">Likes: {comment.likes}</p>
+                  <p className="comment-content">Dislikes: {comment.dislikes}</p>
+                    <div className="comment-form">
+                      <button onClick={() => handleLikeComment(post.id, comment.id)}>Like</button>
+                      <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike</button>
+                      {comment.author === user?.username && (
+                      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
+                      )}
+                    </div>
+                  </li>
+                ))}
                 </ul>
                   <div className="comment-form">
                     <textarea
@@ -391,18 +397,20 @@ useEffect(() => {
                 <h3>Comments</h3>
                 <ul className="comment-list">
                 {comments[post.id]?.map((comment: Comment) => (
-  <li key={comment.id} className="comment">
-    <p className="comment-content">{comment.content}</p>
-    <p className="comment-author">Author: {comment.author}</p>
-    <p className="comment-content">Likes: {comment.likes}</p>
-<p className="comment-content">Dislikes: {comment.dislikes}</p>
-    <div className="comment-form">
-      <button onClick={() => handleLikeComment(post.id, comment.id)}>Like</button>
-      <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike</button>
-      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
-    </div>
-  </li>
-))}
+                <li key={comment.id} className="comment">
+                  <p className="comment-content">{comment.content}</p>
+                  <p className="comment-author">Author: {comment.author}</p>
+                  <p className="comment-content">Likes: {comment.likes}</p>
+              <p className="comment-content">Dislikes: {comment.dislikes}</p>
+                  <div className="comment-form">
+                    <button onClick={() => handleLikeComment(post.id, comment.id)}>Like</button>
+                    <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike</button>
+                    {comment.author === user?.username && (
+                      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
+                    )}
+                  </div>
+                </li>
+              ))}
                 </ul>
                 <div className="comment-form">
                   <textarea

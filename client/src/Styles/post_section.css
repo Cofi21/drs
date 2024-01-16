@@ -61,6 +61,7 @@
     border-radius: 4px;
     background-color: #f9f9f9;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    background-color: darkgrey;
   }
   
   .comment-content {
@@ -68,10 +69,10 @@
     margin-bottom: 4px;
     color: #333; /* Updated color */
   }
-  
+
   .comment-author {
     font-size: 0.8rem;
-    color: #888;
+    color: #222;
   }
   
   .comment-form {

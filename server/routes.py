@@ -5,6 +5,8 @@ from database import db, User,Post,Comment
 
 auth_blueprint = Blueprint('auth', __name__)
 
+
+
 @auth_blueprint.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def login():
@@ -151,7 +153,6 @@ def create_post():
         print(f"Error fetching posts: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
-
 @auth_blueprint.route('/', methods=['GET'])
 def onload():
     try:
@@ -216,10 +217,7 @@ def get_comments(post_id):
         print(f"Error fetching comments: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
-  
 
-
-    
 #Unapredjeni delete koji automatski brise sve komentare vezane za dati post!!!!
 @auth_blueprint.route('/postSection/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
@@ -322,4 +320,27 @@ def delete_comment(post_id, comment_id):
             return jsonify({'error': 'Comment not found'}), 404
     except Exception as e:
         print(f"Error deleting comment: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+
+@auth_blueprint.route('/theme/<int:post_id>', methods=['GET'])
+def get_post_by_id(post_id):
+    try:
+        post = Post.query.get(post_id)
+
+        if post:
+            post_data = {
+                'id': post.id,
+                'title': post.title,
+                'content': post.content,
+                'userName': post.userName,
+                'likes': post.likes,
+                'dislikes': post.dislikes,
+                'commentNumber' : post.commentNumber
+            }
+            return jsonify(post_data), 200
+        else:
+            return jsonify({'error': 'Post not found'}), 404
+    except Exception as e:
+        print(f"Error fetching post: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
