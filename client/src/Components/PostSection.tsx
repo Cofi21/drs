@@ -65,7 +65,7 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
       
   
       // Optionally, you can trigger a refetch of comments from the server to update the local state
-      fetchComments(postId);
+      //fetchComments(postId);
     } catch (error) {
       console.error('Error adding comment:', error);
     }
@@ -169,7 +169,7 @@ useEffect(() => {
 
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
-  }, [user, sortOption, comments]);
+  }, [user, sortOption]);
 
   const fetchPosts = async () => {
     try {
@@ -178,7 +178,7 @@ useEffect(() => {
 
       let sortedUserPosts: Post[] = [];
       let sortedOtherUserPosts: Post[] = [];
-        //hotfix da sortira i "your posts" i "other user posts"
+        
       if (sortOption === 'likes') {
         sortedUserPosts = data
           .filter((post: Post) => user?.username === post.userName)
