@@ -11,6 +11,8 @@ interface Post {
   likes: number;
   dislikes: number;
   commentNumber: number;
+  locked: boolean;
+  subscribed: boolean;
 }
 
 interface Comment {
@@ -38,8 +40,7 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
         console.warn('User is not logged in. Cannot like the post.');
         return;
       }
-  
-      
+
   
       const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/like`, {
         method: 'POST',
@@ -74,8 +75,6 @@ const handleDislike = async (postId: number) => {
       return;
     }
 
-    
-
     const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/dislike`, {
       method: 'POST',
       headers: {
@@ -109,7 +108,7 @@ useEffect(() => {
     
     // Set up polling interval to fetch posts every 5 seconds
     const intervalId = setInterval(fetchPosts, 500);
-
+//
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
   }, [user, sortOption]);
@@ -154,9 +153,8 @@ useEffect(() => {
       
       setPosts(sortedUserPosts);
       setOtherUserPosts(sortedOtherUserPosts);
-      // for (const post of data) {
-      //   await fetchComments(post.id);
-      // }
+      
+
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
@@ -185,7 +183,62 @@ useEffect(() => {
     }
   };
   //#endregion
- 
+
+
+  const handleLockToggle = async (postId: number) => {
+    try {
+      if (!user) {
+        console.warn('User is not logged in. Cannot toggle lock status.');
+        return;
+      }
+  
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/toggleLock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        const updatedPosts = posts.map((post) =>
+          post.id === postId ? { ...post, locked: !post.locked } : post
+        );
+        setPosts(updatedPosts);
+      } else {
+        console.error('Failed to toggle lock status:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error toggling lock status:', error);
+    }
+  };
+  
+  const handleSubscribe = async (postId: number) => {
+    try {
+      if (!user) {
+        console.warn('User is not logged in. Cannot toggle lock status.');
+        return;
+      }
+  
+      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        const updatedPosts = posts.map((post) =>
+          post.id === postId ? { ...post, subscribed: !post.subscribed } : post
+        );
+        setPosts(updatedPosts);
+      } else {
+        console.error('Failed to toggle lock status:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error toggling lock status:', error);
+    }
+  };
+  
   
   return ( 
     
@@ -197,21 +250,20 @@ useEffect(() => {
             {posts.map((post) => (
               <li key={post.id} className="post"
               >
-                <a
-                  onClick={() => handleDeletePost(post.id)}
-                  style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                >
+                <button className='button-delete-post'
+                  onClick={() => handleDeletePost(post.id)}>
                   Delete post
-                </a>
+                </button>
                 <h2 className="post-title">{post.title}</h2>
                 <p className="post-content" >{post.content}</p>
                 <p className="post-author">Author: {post.userName}</p>
-                <p className="post-likes">Likes: {post.likes}</p>
-                <p className="post-dislikes">Dislikes: {post.dislikes}</p>
                 <button id="openPostButton" onClick={() => handlePostClick(post.id)}>Open theme</button>
+                <button  className="lock-toggle-button" onClick={() => handleLockToggle(post.id)}>
+                  {post.locked ? 'Unlock' : 'Lock'}
+                </button>
                 <div className="comment-form">
-                  <button onClick={() => handleLike(post.id)}>Like</button>
-                  <button onClick={() => handleDislike(post.id)}>Dislike</button>
+                  <button onClick={() => handleLike(post.id)}>Like {post.likes}</button>
+                  <button onClick={() => handleDislike(post.id)}>Dislike {post.dislikes}</button>
                 </div>
               </li>
             ))}
@@ -227,16 +279,23 @@ useEffect(() => {
         <ul className="post-list">
           {otherPosts.map((post) => (
             <li key={post.id} className="post" >
+              {user && (
+                <>
+                  <button className='button-delete-post'
+                  onClick={() => handleSubscribe(post.id)}
+                 >
+                  {post.subscribed ? 'Subscribe' : 'Unsubscribe'}
+                </button>
+                </>
+              )}
               <h2 className="post-title">{post.title}</h2>
               <p className="post-content">{post.content}</p>
               <p className="post-author">Author: {post.userName}</p>
-              <p className="post-likes">Likes: {post.likes}</p>
-              <p className="post-dislikes">Dislikes: {post.dislikes}</p>
               
               <button id="openPostButton" onClick={() => handlePostClick(post.id)}>Open theme</button>
               <div className="comment-form">
-                  <button onClick={() => handleLike(post.id)}>Like</button>
-                  <button onClick={() => handleDislike(post.id)}>Dislike</button>
+                  <button onClick={() => handleLike(post.id)}>Like {post.likes}</button>
+                  <button onClick={() => handleDislike(post.id)}>Dislike {post.dislikes}</button>
                 </div>
             </li>
           ))}

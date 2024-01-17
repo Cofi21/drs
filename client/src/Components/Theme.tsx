@@ -14,6 +14,8 @@ interface Post {
   likes: number;
   dislikes: number;
   commentNumber: number;
+  locked: boolean;
+  subscribed: boolean;
 }
 
 interface Comment {
@@ -280,24 +282,37 @@ const handleLikePost = async (postId: number) => {
                     <p className="comment-content">{comment.content}</p>
                     <hr></hr>
                     <p className="comment-author">Author: {comment.author}</p>
-                    <div className="comment-form">
-                      <button onClick={() => handleLikeComment(post.id, comment.id)}>Like {comment.likes}</button>
-                      <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike {comment.dislikes}</button>
-                      {comment.author === user?.username && (
-                      <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
-                      )}
-                    </div>
+                    {!post.locked && (
+                      <>
+                      <div className="comment-form">
+                        <button onClick={() => handleLikeComment(post.id, comment.id)}>Like {comment.likes}</button>
+                        <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike {comment.dislikes}</button>
+                        {comment.author === user?.username && (
+                        <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
+                        )}
+                      </div>
+                    </>
+                    )}
                   </li>
                 ))}
         </ul>
-        <div className="comment-form">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-          />
-          <button onClick={() => handleCommentSubmit(post.id)}>Add Comment</button>
-        </div>
+        {post.locked && (
+                    <p>
+                      This post is locked for commenting.
+                    </p>)
+                    }{!post.locked && (
+                      <>
+                      <div className="comment-form">
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Add a comment..."
+                      />
+                      <button onClick={() => handleCommentSubmit(post.id)}>Add Comment</button>
+                    </div>
+                      </>
+          )}
+        
       </div>
     </div>
   );

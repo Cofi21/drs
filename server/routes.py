@@ -131,6 +131,8 @@ def create_post():
             likes=0,
             dislikes=0,
             commentNumber=0,
+            locked = False,
+            subscribed = False
         )
 
         db.session.add(new_post)
@@ -145,10 +147,12 @@ def create_post():
                     'userName': post.userName,
                         'likes': post.likes,
                         'dislikes': post.dislikes,
+                        'locked': post.locked,
+                        'subscribed': post.subscribed
                         }
                         for post in posts]
 
-        return jsonify(posts_list)
+        return jsonify(posts_list), 200
     except Exception as e:
         print(f"Error fetching posts: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
@@ -167,10 +171,13 @@ def onload():
                        'userName': post.userName,
                        'likes': post.likes,
                        'dislikes': post.dislikes,
-                       'commentNumber': post.commentNumber}
+                       'commentNumber': post.commentNumber,
+                       'locked': post.locked,
+                       'subscribed': post.subscribed
+                       }
                       for post in posts]
 
-        return jsonify(posts_list)
+        return jsonify(posts_list), 200
     except Exception as e:
         print(f"Error fetching posts: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
@@ -216,7 +223,6 @@ def get_comments(post_id):
     except Exception as e:
         print(f"Error fetching comments: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
-
 
 #Unapredjeni delete koji automatski brise sve komentare vezane za dati post!!!!
 @auth_blueprint.route('/postSection/<int:post_id>', methods=['DELETE'])
@@ -271,7 +277,9 @@ def get_post_by_id(post_id):
                 'userName': post.userName,
                 'likes': post.likes,
                 'dislikes': post.dislikes,
-                'commentNumber' : post.commentNumber
+                'commentNumber' : post.commentNumber,
+                'locked' : post.locked,
+                'subscribed': post.subscribed
             }
             return jsonify(post_data), 200
         else:
@@ -323,4 +331,60 @@ def delete_comment(post_id, comment_id):
         return jsonify({'error': 'Internal Server Error'}), 500
     
 
+@auth_blueprint.route('/postSection/<int:post_id>/toggleLock', methods=['POST'])
+def toggle_post_lock(post_id):
+    try:
+        post = Post.query.get(post_id)
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
 
+        # Promenite vrednost polja 'locked' na suprotnu vrednost
+        post.locked = not post.locked
+        db.session.commit()
+
+        return jsonify({'success': 'Post lock status updated'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_blueprint.route('/postSection/<int:post_id>/subscribe', methods=['POST'])
+def subscribe(post_id):
+    try:
+        post = Post.query.get(post_id)
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
+
+        # Promenite vrednost polja 'locked' na suprotnu vrednost
+        post.subscribed = not post.subscribed
+        db.session.commit()
+
+        return jsonify({'success': 'Post lock status updated'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_blueprint.route('/themes/search', methods=['GET'])
+def search_themes():
+    try:
+        title = request.args.get('title', '')
+        # Assuming 'title' is the column you want to search
+        themes = Post.query.filter(Post.title.ilike(f"%{title}%")).all()
+
+        # Convert themes to a list of dictionaries
+        themes_list = [
+            {
+                'id': theme.id,
+                'title': theme.title,
+                'content': theme.content,
+                'userName': theme.userName,
+                'likes': theme.likes,
+                'dislikes': theme.dislikes,
+                'commentNumber': theme.commentNumber,
+                'locked': theme.locked,
+            }
+            for theme in themes
+        ]
+
+        return jsonify(themes_list)
+
+    except Exception as e:
+        print("Error searching themes:", str(e))
+        return jsonify({'error': 'Internal Server Error'}), 500

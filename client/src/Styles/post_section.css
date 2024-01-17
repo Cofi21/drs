@@ -17,6 +17,7 @@
      background-color: #333;
      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
      background-color: rgba(255, 255, 255, 0.1);
+     position: relative;
     }
 
     #openPostButton{
@@ -25,6 +26,7 @@
       padding: 10px;
       background-color: #222;
       color: #f9f9f9;
+      margin: -5px;
     }
 
     #openPostButton:hover{
@@ -126,3 +128,42 @@
     color: #ff4500;
    }
    
+   .lock-toggle-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px;
+    font-size: 0.9rem;
+    background-color: red; 
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+    margin-right: 130px;
+    
+  }
+  
+  .lock-toggle-button:hover {
+    background-color: rgb(102, 13, 13); 
+    transition-duration: 500ms;
+  }
+  .button-delete-post{
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px;
+    font-size: 0.9rem;
+    background-color: red; 
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 20px;
+    cursor: 'pointer' 
+  }
+  .button-delete-post:hover {
+    background-color: rgb(102, 13, 13); 
+    transition-duration: 500ms;
+  }
+ 

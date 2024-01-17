@@ -24,6 +24,8 @@ class Post(db.Model):
     dislikes = db.Column(db.Integer)
     comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")  #bez ovog delete-oprhan ne radi brisanje
     commentNumber = db.Column(db.Integer, nullable=False)
+    locked = db.Column(db.Boolean, default=False)
+    subscribed = db.Column(db.Boolean, default=False)
 
 class Comment(db.Model):
     __tablename__ = "comments"

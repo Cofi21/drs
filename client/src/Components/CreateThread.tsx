@@ -11,6 +11,8 @@ interface Post {
   likes: number;
   dislikes: number;
   commentNumber: number;
+  locked: boolean;
+  subscribed: boolean;
 }
 
 interface CreateThreadProps {
@@ -53,6 +55,8 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           likes: 0,
           dislikes: 0,
           commentNumber: 0,
+          locked: false,
+          subscribed: false
         };
         console.info
         addPost(newPost);
@@ -84,6 +88,7 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           placeholder="Write your post..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          
         ></textarea>
         <button type="submit" className="btn create-post-btn" disabled={currentUser === 'Guest'}>
           Create Post
@@ -106,8 +111,7 @@ const PostFunction: React.FC = () => {
   return (
     <div>
       <CreateThread addPost={addPost} currentUser={user?.username ?? 'Guest'} />
-      
-      
+
     </div>
   );
 };
