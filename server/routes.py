@@ -2,6 +2,17 @@ from flask import Blueprint, request, jsonify, redirect,session
 from flask_cors import cross_origin
 from database import db, User,Post,Comment
 
+import threading
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+smtp_server = 'smtp.gmail.com'
+smtp_port = 587   
+smtp_username = 'forumdrs2023@gmail.com'
+smtp_password = 'hsyk fmse qrrc wyni'
+
+
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -188,6 +199,7 @@ def post_comments(post_id):
         
         data = request.get_json()
         print('Received data:', data)
+        subscribed_usernames = Post.query.filter_by(subscribed=True).with_entities(Post.userName).all()
 
         # Create a new comment
         new_comment = Comment(content=data.get('content'), post_id=post_id, author=data.get('author'))
@@ -200,6 +212,7 @@ def post_comments(post_id):
         post = Post.query.get_or_404(post_id)
         post.commentNumber += 1
         db.session.commit()
+        sendMail(subscribed_usernames)
 
         return jsonify({'message': 'Comment added successfully'})
 
@@ -357,6 +370,8 @@ def subscribe(post_id):
         post.subscribed = not post.subscribed
         db.session.commit()
 
+
+
         return jsonify({'success': 'Post lock status updated'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -388,3 +403,57 @@ def search_themes():
     except Exception as e:
         print("Error searching themes:", str(e))
         return jsonify({'error': 'Internal Server Error'}), 500
+
+def send_mail_to_receiver(receiver_email):
+    try:
+        
+        message = MIMEMultipart()
+        message['From'] = "forumdrs2023@gmail.com"
+        message['To'] = receiver_email
+        message['Subject'] = 'Test Email Subject'
+
+ 
+        body = 'Uspesno poslat mail.'
+        message.attach(MIMEText(body, 'plain'))
+
+       
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            
+            server.starttls()
+
+      
+            server.login(smtp_username, smtp_password)
+
+            
+            server.sendmail(sender_email, receiver_email, message.as_string())
+
+        print(f'Email uspešno poslat na {receiver_email}.')
+    except Exception as e:
+        print(f'Došlo je do greške prilikom slanja emaila na {receiver_email}: {e}')
+
+def sendMail(receivers):
+    try:
+        sender_email = 'forumdrs2023@gmail.com'
+
+     
+        receiver_emails = receivers.split()
+
+       
+        threads = []
+
+        for receiver_email in receiver_emails:
+            
+            thread = threading.Thread(target=send_mail_to_receiver, args=(sender_email, receiver_email))
+            thread.start()
+            threads.append(thread)
+
+       
+        for thread in threads:
+            thread.join()
+
+        print('Svi emailovi uspešno poslati.')
+    except Exception as e:
+        print('Došlo je do greške prilikom slanja emailova:', e)
+
+ 
+
