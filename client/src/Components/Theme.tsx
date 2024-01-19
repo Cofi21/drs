@@ -271,8 +271,8 @@ const handleLikePost = async (postId: number) => {
       <hr></hr>
       <p className="post-author">Author: {post.userName}</p>
       <div className="comment-form">
-        <button onClick={() => handleLikePost(post.id)}>Like {post.likes}</button>
-        <button onClick={() => handleDislikePost(post.id)}>Dislike {post.dislikes}</button>
+        <button onClick={() => handleLikePost(post.id)}>⇧ {post.likes}</button>
+        <button onClick={() => handleDislikePost(post.id)}>⇩ {post.dislikes}</button>
       </div>
       <div className="comments-section">
         <h3>Comments</h3>
@@ -285,8 +285,8 @@ const handleLikePost = async (postId: number) => {
                     {!post.locked && (
                       <>
                       <div className="comment-form">
-                        <button onClick={() => handleLikeComment(post.id, comment.id)}>Like {comment.likes}</button>
-                        <button onClick={() => handleDislikeComment(post.id, comment.id)}>Dislike {comment.dislikes}</button>
+                        <button onClick={() => handleLikeComment(post.id, comment.id)}>⇧ {comment.likes}</button>
+                        <button onClick={() => handleDislikeComment(post.id, comment.id)}>⇩ {comment.dislikes}</button>
                         {comment.author === user?.username && (
                         <button onClick={() => handleDeleteComment(post.id, comment.id)}>Delete comment</button>
                         )}

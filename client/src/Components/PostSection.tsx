@@ -256,14 +256,16 @@ useEffect(() => {
                 </button>
                 <h2 className="post-title">{post.title}</h2>
                 <p className="post-content" >{post.content}</p>
+                <hr></hr>
                 <p className="post-author">Author: {post.userName}</p>
                 <button id="openPostButton" onClick={() => handlePostClick(post.id)}>Open theme</button>
                 <button  className="lock-toggle-button" onClick={() => handleLockToggle(post.id)}>
                   {post.locked ? 'Unlock' : 'Lock'}
                 </button>
                 <div className="comment-form">
-                  <button onClick={() => handleLike(post.id)}>Like {post.likes}</button>
-                  <button onClick={() => handleDislike(post.id)}>Dislike {post.dislikes}</button>
+                  <button onClick={() => handleLike(post.id)}>⇧ {post.likes}</button>
+                  <button onClick={() => handleDislike(post.id)}>⇩ {post.dislikes}</button>
+                  
                 </div>
               </li>
             ))}
@@ -294,8 +296,8 @@ useEffect(() => {
               
               <button id="openPostButton" onClick={() => handlePostClick(post.id)}>Open theme</button>
               <div className="comment-form">
-                  <button onClick={() => handleLike(post.id)}>Like {post.likes}</button>
-                  <button onClick={() => handleDislike(post.id)}>Dislike {post.dislikes}</button>
+                  <button onClick={() => handleLike(post.id)}>⇧ {post.likes}</button>
+                  <button onClick={() => handleDislike(post.id)}>⇩ {post.dislikes}</button>
                 </div>
             </li>
           ))}
