@@ -35,36 +35,68 @@ function ThemePage() {
   const { user } = useAuth();
 
   useEffect(() => {
+    // Function to fetch post data
     const fetchPostData = async () => {
-        try {
-          console.log('Fetching post data for postId:', postId);
-      
-          // Fetch post data
-          const postResponse = await fetch(`http://localhost:3003/auth/theme/${postId}`);
+      try {
+        
+  
+        // Fetch post data
+        const postResponse = await fetch(`http://localhost:3003/auth/theme/${postId}`);
+  
+        if (!postResponse.ok) {
+         
+          console.error('Error fetching post data. Server response:', postResponse.status, postResponse.statusText);
           
-          if (!postResponse.ok) {
-            // Handle non-successful response
-            console.error('Error fetching post data. Server response:', postResponse.status, postResponse.statusText);
-            // You can throw an error if you want to stop the execution or just return to handle it later
-            throw new Error('Error fetching post data');
-          }
-      
-          const postData: Post = await postResponse.json();
-          console.log('Post data:', postData);
-          setPost(postData);
-        } catch (error: any) {
-          // Explicitly assert the error to the Error type
-          console.error('An unexpected error occurred during fetchPostData:', error.message);
-          // You might want to set an error state here or show a user-friendly error message
+          throw new Error('Error fetching post data');
         }
-      };
+  
+        const postData: Post = await postResponse.json();
+        
+        setPost(postData);
+      } catch (error: any) {
+       
+        console.error('An unexpected error occurred during fetchPostData:', error.message);
+        
+      }
+    };
+  
+    // Function to fetch comments
+    const fetchComments = async (postId: number) => {
+      try {
+        const response = await fetch(`http://localhost:3003/auth/theme/${postId}/comments`);
+        const data: Comment[] = await response.json();
+  
+        setComments((prevComments) => ({
+          ...prevComments,
+          [postId]: data.map((comment: Comment) => ({
+            ...comment,
+            author: comment.author || (user?.username ?? ''),
+          })),
+        }));
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+  
+    // Initial fetch
+    fetchPostData();
+    if (postId) {
+      fetchComments(parseInt(postId));
+    }
+  
     
+    const fetchDataInterval = setInterval(() => {
       fetchPostData();
-      if(postId)
-      {
+      if (postId) {
         fetchComments(parseInt(postId));
       }
-  }, [postId]);
+    }, 200);
+  
+    // Cleanup the interval on component unmount
+    return () => clearInterval(fetchDataInterval);
+  
+   
+  }, [postId]); 
   
   const fetchComments = async (postId: number) => {
     try {
@@ -201,7 +233,7 @@ function ThemePage() {
     }
   };
 
-const handleLikePost = async (postId: number) => {
+  const handleLikePost = async (postId: number) => {
     try {
       if (!user) {
         console.warn('User is not logged in. Cannot like the post.');
@@ -213,14 +245,10 @@ const handleLikePost = async (postId: number) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ user_id: user.id }),
       });
   
-      if (response.ok) {
-        setPost((prevPost) => ({
-          ...prevPost!,
-          likes: (prevPost?.likes || 0) + 1,
-        }));
-      } else {
+      if (!response.ok) {
         console.error('Failed to like post:', response.statusText);
       }
     } catch (error) {
@@ -232,7 +260,7 @@ const handleLikePost = async (postId: number) => {
   const handleDislikePost = async (postId: number) => {
     try {
       if (!user) {
-        console.warn('User is not logged in. Cannot like the post.');
+        console.warn('User is not logged in. Cannot dislike the post.');
         return;
       }
   
@@ -241,18 +269,14 @@ const handleLikePost = async (postId: number) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ user_id: user.id }),
       });
   
-      if (response.ok) {
-        setPost((prevPost) => ({
-          ...prevPost!,
-          dislikes: (prevPost?.dislikes || 0) + 1,
-        }));
-      } else {
-        console.error('Failed to like post:', response.statusText);
+      if (!response.ok) {
+        console.error('Failed to dislike post:', response.statusText);
       }
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error disliking post:', error);
     }
   };
 

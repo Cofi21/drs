@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect,session
 from flask_cors import cross_origin
-from database import db, User,Post,Comment
+from database import db, User,Post,Comment,Like,Dislike
 
 import threading
 import smtplib
@@ -245,13 +245,25 @@ def delete_post(post_id):
         post_to_delete = Post.query.get(post_id)
 
         if post_to_delete:
-            # pogledati da li ima komentara vezanih za post
+            # Check if there are likes related to the post
+            if post_to_delete.likes_relationship:
+                # Delete all likes
+                for like in post_to_delete.likes_relationship:
+                    db.session.delete(like)
+
+            # Check if there are dislikes related to the post
+            if post_to_delete.dislikes_relationship:
+                # Delete all dislikes
+                for dislike in post_to_delete.dislikes_relationship:
+                    db.session.delete(dislike)
+
+            # Check if there are comments related to the post
             if post_to_delete.comments:
-                # obrisati sve komentare
+                # Delete all comments
                 for comment in post_to_delete.comments:
                     db.session.delete(comment)
 
-            # obrisati post
+            # Delete the post
             db.session.delete(post_to_delete)
             db.session.commit()
 
@@ -265,17 +277,75 @@ def delete_post(post_id):
 '''lajkovanje i dislajkovanje postova'''
 @auth_blueprint.route('/postSection/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
+    data = request.get_json()
+
+    # Extract user information from the request payload
+    user_id = data.get('user_id')  # Assuming user_id is included in the request payload
+
+    if not user_id:
+        return jsonify({'error': 'User ID not provided'}), 400
+
     post = Post.query.get_or_404(post_id)
+
+    # Check if the user has already liked the post
+    existing_like = Like.query.filter_by(user_id=user_id, post_id=post_id).first()
+
+    if existing_like:
+        # If the user has already liked the post, remove the like
+        db.session.delete(existing_like)
+        post.likes -= 1
+        db.session.commit()
+
+        return jsonify({'message': 'Post like removed successfully', 'likes': post.likes})
+
+    # Add a new like
+    new_like = Like(user_id=user_id, post_id=post_id)
+    db.session.add(new_like)
+
+    # Increment the like count for the post
     post.likes += 1
+
     db.session.commit()
+
     return jsonify({'message': 'Post liked successfully', 'likes': post.likes})
 
+    
 @auth_blueprint.route('/postSection/<int:post_id>/dislike', methods=['POST'])
 def dislike_post(post_id):
+    data = request.get_json()
+
+    # Extract user information from the request payload
+    user_id = data.get('user_id')  # Assuming user_id is included in the request payload
+
+    if not user_id:
+        return jsonify({'error': 'User ID not provided'}), 400
+
     post = Post.query.get_or_404(post_id)
+
+    # Check if the user has already disliked the post
+    existing_dislike = Dislike.query.filter_by(user_id=user_id, post_id=post_id).first()
+
+    if existing_dislike:
+        # If the user has already disliked the post, remove the dislike
+        db.session.delete(existing_dislike)
+        post.dislikes -= 1
+        db.session.commit()
+
+        return jsonify({'message': 'Post dislike removed successfully', 'dislikes': post.dislikes})
+
+    # Add a new dislike
+    new_dislike = Dislike(user_id=user_id, post_id=post_id)
+    db.session.add(new_dislike)
+
+    # Increment the dislike count for the post
     post.dislikes += 1
+
     db.session.commit()
+
     return jsonify({'message': 'Post disliked successfully', 'dislikes': post.dislikes})
+
+
+
 
 @auth_blueprint.route('/theme/<int:post_id>', methods=['GET'])
 def get_post_by_id(post_id):

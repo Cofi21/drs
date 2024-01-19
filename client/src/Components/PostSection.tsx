@@ -35,70 +35,45 @@ const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sort
   /* dodata pocetna logika za lajkovanje i dislajkovanje postova(kad se refreshuje stranica korisnik moze ponovo lajkovati ili dislajkovati)*/
   const handleLike = async (postId: number) => {
     try {
-      //Ako user nije ulogovan, zabraniti lajkovanje i dislajkovanje
+      
       if (!user) {
         console.warn('User is not logged in. Cannot like the post.');
         return;
       }
-
   
-      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/like`, {
+      
+      await fetch(`http://localhost:3003/auth/postSection/${postId}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ user_id: user.id }),
       });
-  
-      if (response.ok) {
-        const updatedPosts = posts.map((post) =>
-          post.id === postId ? { ...post, likes: post.likes + 1 } : post
-        );
-        setPosts(updatedPosts);
-  
-        const updatedOtherPosts = otherPosts.map((post) =>
-          post.id === postId ? { ...post, likes: post.likes + 1 } : post
-        );
-        setOtherUserPosts(updatedOtherPosts);
-      } else {
-        console.error('Failed to like post:', response.statusText);
-      }
     } catch (error) {
       console.error('Error liking post:', error);
     }
   };
-/* dodata pocetna logika za lajkovanje i dislajkovanje postova(doraditi)*/
-const handleDislike = async (postId: number) => {
-  try {
-    //Ako user nije ulogovan, zabraniti lajkovanje i dislajkovanje
-    if (!user) {
-      console.warn('User is not logged in. Cannot dislike the post.');
-      return;
+  
+  const handleDislike = async (postId: number) => {
+    try {
+      
+      if (!user) {
+        console.warn('User is not logged in. Cannot dislike the post.');
+        return;
+      }
+  
+      
+      await fetch(`http://localhost:3003/auth/postSection/${postId}/dislike`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+    } catch (error) {
+      console.error('Error disliking post:', error);
     }
-
-    const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/dislike`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.ok) {
-      const updatedPosts = posts.map((post) =>
-        post.id === postId ? { ...post, dislikes: post.dislikes + 1 } : post
-      );
-      setPosts(updatedPosts);
-
-      const updatedOtherPosts = otherPosts.map((post) =>
-        post.id === postId ? { ...post, dislikes: post.dislikes + 1 } : post
-      );
-      setOtherUserPosts(updatedOtherPosts);
-    } else {
-      console.error('Failed to dislike post:', response.statusText);
-    }
-  } catch (error) {
-    console.error('Error disliking post:', error);
-  }
-};
+  };
 
 
 useEffect(() => {
