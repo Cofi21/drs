@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import '../Styles/home.css';
 import '../Styles/post_section.css';
@@ -15,7 +15,6 @@ interface Post {
   subscribed: boolean;
 }
 
-
 interface CreateThreadProps {
   addPost: (post: Post) => void;
   currentUser: string;
@@ -24,21 +23,12 @@ interface CreateThreadProps {
 const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => {
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim() || !content.trim()) {
-      setError('Title and content are required.');
-      setSuccessMessage('');
-      return;
-    }
-
     if (currentUser === 'Guest') {
-      setError('Guest user cannot create posts.');
-      setSuccessMessage('');
+      console.error('Guest user cannot create posts.');
       return;
     }
 
@@ -52,12 +42,13 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           title,
           content,
           userName: currentUser,
+          
         }),
       });
-
+      
       if (response.ok) {
         const newPost: Post = {
-          id: 0,
+          id : 0, 
           title,
           content,
           userName: currentUser,
@@ -65,23 +56,18 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           dislikes: 0,
           commentNumber: 0,
           locked: false,
-          subscribed: false,
+          subscribed: false
         };
+        console.info
         addPost(newPost);
 
         setTitle('');
         setContent('');
-        setError('');
-        setSuccessMessage('Post created successfully!');
       } else {
         console.error('Failed to create post:', response.statusText);
-        setError('Failed to create post. Please try again.');
-        setSuccessMessage('');
       }
     } catch (error) {
       console.error('Error creating post:', error);
-      setError('An unexpected error occurred. Please try again.');
-      setSuccessMessage('');
     }
   };
 
@@ -102,9 +88,8 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           placeholder="Write your post..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          
         ></textarea>
-        <div style={{ color: 'red', marginTop: '5px' }}>{error}</div>
-        <div style={{ color: 'green', marginTop: '5px' }}>{successMessage}</div>
         <button type="submit" className="btn create-post-btn" disabled={currentUser === 'Guest'}>
           Create Post
         </button>
@@ -113,4 +98,22 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
   );
 };
 
-export default CreateThread;
+
+const PostFunction: React.FC = () => {
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
+  //const { currentUser } = useAuth();
+
+  const addPost = (newPost: Post) => {
+    setPosts((prevPosts) => [...prevPosts, newPost]);
+  };
+
+  return (
+    <div>
+      <CreateThread addPost={addPost} currentUser={user?.username ?? 'Guest'} />
+
+    </div>
+  );
+};
+
+export default PostFunction;

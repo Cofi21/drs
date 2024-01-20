@@ -33,7 +33,6 @@ function ThemePage() {
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [newComment, setNewComment] = useState('');
   const { user } = useAuth();
-  const [commentError, setCommentError] = useState<string>('');
 
   useEffect(() => {
     // Function to fetch post data
@@ -118,12 +117,6 @@ function ThemePage() {
 
   const handleCommentSubmit = async (postId: number) => {
     try {
-      // Check if newComment is an empty string
-      if (!newComment.trim()) {
-        setCommentError('Comment cannot be empty');
-        return;
-      }
-  
       const response = await fetch(`http://localhost:3003/auth/theme/${postId}/comments`, {
         method: 'POST',
         headers: {
@@ -150,7 +143,6 @@ function ThemePage() {
       console.error('Error adding comment:', error);
     }
   };
-  
 
   const handleDislikeComment = async (postId: number, commentId: number) => {
     try {
@@ -340,7 +332,6 @@ function ThemePage() {
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Add a comment..."
                       />
-                      {commentError && <p style={{ color: 'red' }}>{commentError}</p>} {/* Display error message */}
                       <button onClick={() => handleCommentSubmit(post.id)}>Add Comment</button>
                     </div>
                       </>
