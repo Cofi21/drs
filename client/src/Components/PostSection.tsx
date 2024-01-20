@@ -17,7 +17,7 @@ interface Post {
 }
 
 
-const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sortOption }) => {
+const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments'; searchTerm: string }> = ({ sortOption, searchTerm }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const { user } = useAuth();
   const [otherPosts, setOtherUserPosts] = useState<Post[]>([]);
@@ -79,49 +79,52 @@ useEffect(() => {
 //
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
-  }, [user, sortOption]);
+  }, [user, sortOption,searchTerm]);
 
   const fetchPosts = async () => {
     try {
       const response = await fetch('http://localhost:3003/auth/');
       const data = await response.json();
 
+      // Filter posts based on the search term
+      const filteredPosts = data.filter((post: Post) =>
+        post.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
       let sortedUserPosts: Post[] = [];
       let sortedOtherUserPosts: Post[] = [];
-        
+
       if (sortOption === 'likes') {
-        sortedUserPosts = data
+        sortedUserPosts = filteredPosts
           .filter((post: Post) => user?.username === post.userName)
           .sort((a: Post, b: Post) => b.likes - a.likes);
- 
-        sortedOtherUserPosts = data
+
+        sortedOtherUserPosts = filteredPosts
           .filter((post: Post) => user?.username !== post.userName)
           .sort((a: Post, b: Post) => b.likes - a.likes);
       } else if (sortOption === 'dislikes') {
-        sortedUserPosts = data
+        sortedUserPosts = filteredPosts
           .filter((post: Post) => user?.username === post.userName)
           .sort((a: Post, b: Post) => b.dislikes - a.dislikes);
 
-        sortedOtherUserPosts = data
+        sortedOtherUserPosts = filteredPosts
           .filter((post: Post) => user?.username !== post.userName)
           .sort((a: Post, b: Post) => b.dislikes - a.dislikes);
       } else if (sortOption === 'comments') {
-        sortedUserPosts = data
+        sortedUserPosts = filteredPosts
           .filter((post: Post) => user?.username === post.userName)
           .sort((a: Post, b: Post) => b.commentNumber - a.commentNumber);
-      
-        sortedOtherUserPosts = data
+
+        sortedOtherUserPosts = filteredPosts
           .filter((post: Post) => user?.username !== post.userName)
           .sort((a: Post, b: Post) => b.commentNumber - a.commentNumber);
+      } else {
+        sortedUserPosts = filteredPosts.filter((post: Post) => user?.username === post.userName);
+        sortedOtherUserPosts = filteredPosts.filter((post: Post) => user?.username !== post.userName);
       }
-      else {
-        sortedUserPosts = data.filter((post: Post) => user?.username === post.userName);
-        sortedOtherUserPosts = data.filter((post: Post) => user?.username !== post.userName);
-      }
-      
+
       setPosts(sortedUserPosts);
       setOtherUserPosts(sortedOtherUserPosts);
-      
 
     } catch (error) {
       console.error('Error fetching posts:', error);
