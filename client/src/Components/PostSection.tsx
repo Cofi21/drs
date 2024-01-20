@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../Styles/post_section.css';
-import { AuthProvider, useAuth } from './AuthContext';
+import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 interface Post {
@@ -16,21 +16,13 @@ interface Post {
   subscribed_usernames: string;
 }
 
-interface Comment {
-  id: number;
-  content: string;
-  author: string;
-  likes: number;
-  dislikes: number;
-}
 
 const App: React.FC<{ sortOption: 'likes' | 'dislikes' | 'comments' }> = ({ sortOption }) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
-  const [newComment, setNewComment] = useState('');
   const { user } = useAuth();
   const [otherPosts, setOtherUserPosts] = useState<Post[]>([]);
   const navigate = useNavigate();
+  
   
   //#region POSTS
   /* dodata pocetna logika za lajkovanje i dislajkovanje postova(kad se refreshuje stranica korisnik moze ponovo lajkovati ili dislajkovati)*/
@@ -266,7 +258,7 @@ useEffect(() => {
                 <div className="comment-form">
                   <button onClick={() => handleLike(post.id)}>⇧ {post.likes}</button>
                   <button onClick={() => handleDislike(post.id)}>⇩ {post.dislikes}</button>
-                  
+                  <button onClick={() => handlePostClick(post.id)}>💬 {post.commentNumber}</button>
                 </div>
               </li>
             ))}
@@ -299,6 +291,7 @@ useEffect(() => {
               <div className="comment-form">
                   <button onClick={() => handleLike(post.id)}>⇧ {post.likes}</button>
                   <button onClick={() => handleDislike(post.id)}>⇩ {post.dislikes}</button>
+                  <button onClick={() => handlePostClick(post.id)}>💬 {post.commentNumber}</button>
                 </div>
             </li>
           ))}

@@ -33,6 +33,7 @@ function ThemePage() {
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [newComment, setNewComment] = useState('');
   const { user } = useAuth();
+  const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
     // Function to fetch post data
@@ -117,6 +118,11 @@ function ThemePage() {
 
   const handleCommentSubmit = async (postId: number) => {
     try {
+      if(newComment.trim().length == 0)
+      {
+        setMessage("Comment cannot be empty!");
+        return;
+      }
       const response = await fetch(`http://localhost:3003/auth/theme/${postId}/comments`, {
         method: 'POST',
         headers: {
@@ -132,8 +138,8 @@ function ThemePage() {
   
       if (response.ok) {
         // Clear the comment input field after submitting
+        setMessage('');
         setNewComment('');
-  
         // Fetch comments again after the new comment is added
         await fetchComments(postId);
       } else {
@@ -297,6 +303,7 @@ function ThemePage() {
       <div className="comment-form">
         <button onClick={() => handleLikePost(post.id)}>⇧ {post.likes}</button>
         <button onClick={() => handleDislikePost(post.id)}>⇩ {post.dislikes}</button>
+        <button>💬 {post.commentNumber}</button>
       </div>
       <div className="comments-section">
         <h3>Comments</h3>
@@ -319,6 +326,7 @@ function ThemePage() {
                     )}
                   </li>
                 ))}
+                <p style={{color : 'red'}}>{message}</p>
         </ul>
         {post.locked && (
                     <p>

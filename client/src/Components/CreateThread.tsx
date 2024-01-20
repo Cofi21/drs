@@ -24,12 +24,19 @@ interface CreateThreadProps {
 const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => {
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (currentUser === 'Guest') {
       console.error('Guest user cannot create posts.');
+      return;
+    }
+
+    if(title.trim().length == 0 || content.trim().length == 0)
+    {
+      setMessage("Title and content cannot be empty!");
       return;
     }
 
@@ -60,6 +67,7 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           subscribed: false,
           subscribed_usernames: ""
         };
+        setMessage('');
         console.info
         addPost(newPost);
 
@@ -92,6 +100,7 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           onChange={(e) => setContent(e.target.value)}
           
         ></textarea>
+        <p style={{ color: 'red' }}>{message}</p>
         <button type="submit" className="btn create-post-btn" disabled={currentUser === 'Guest'}>
           Create Post
         </button>
