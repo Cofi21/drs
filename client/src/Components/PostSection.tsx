@@ -284,8 +284,10 @@ useEffect(() => {
             <li key={post.id} className="post" >
               {user && (
                 <>
-                  <button className='button-delete-post' onClick={() => handleSubscribe(post.id)}>
-                  {post.subscribed ? 'Unsubscribe' : 'Subscribe'}
+                <button className='button-delete-post' onClick={() => handleSubscribe(post.id)}>
+                  {post.subscribed_usernames && post.subscribed_usernames.includes(user.username)
+                    ? 'Unsubscribe'
+                    : 'Subscribe'}
                 </button>
                 </>
               )}

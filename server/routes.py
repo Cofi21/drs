@@ -223,8 +223,6 @@ def post_comments(post_id):
     except Exception as e:
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
-
-
 @auth_blueprint.route('/theme/<int:post_id>/comments', methods=['GET'])
 def get_comments(post_id):
     try:
@@ -325,7 +323,6 @@ def like_post(post_id):
 
     return jsonify({'message': 'Post liked successfully', 'likes': post.likes})
 
-
 @auth_blueprint.route('/postSection/<int:post_id>/dislike', methods=['POST'])
 def dislike_post(post_id):
     data = request.get_json()
@@ -367,9 +364,6 @@ def dislike_post(post_id):
     db.session.commit()
 
     return jsonify({'message': 'Post disliked successfully', 'dislikes': post.dislikes})
-
-
-
 
 @auth_blueprint.route('/theme/<int:post_id>', methods=['GET'])
 def get_post_by_id(post_id):
@@ -437,7 +431,6 @@ def delete_comment(post_id, comment_id):
         print(f"Error deleting comment: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
     
-
 @auth_blueprint.route('/postSection/<int:post_id>/toggleLock', methods=['POST'])
 def toggle_post_lock(post_id):
     try:
@@ -466,21 +459,24 @@ def subscribe(post_id, user_id):
 
         if post.subscribed:
             if post.subscribed_usernames:
-                post.subscribed_usernames += ',' + user.email
+                usernames = post.subscribed_usernames.split(',')
+                if user.email not in usernames:
+                    usernames.append(user.email)
+                    post.subscribed_usernames = ','.join(usernames)
             else:
                 post.subscribed_usernames = user.email
         else:
             if post.subscribed_usernames:
                 usernames = post.subscribed_usernames.split(',')
-                usernames.remove(user.email)
-                post.subscribed_usernames = ','.join(usernames)
+                if user.email in usernames:
+                    usernames.remove(user.email)
+                    post.subscribed_usernames = ','.join(usernames)
 
         db.session.commit()
 
         return jsonify({'success': 'Post lock status updated'}), 200
     except Exception as e:
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
-
 
 @auth_blueprint.route('/themes/search', methods=['GET'])
 def search_themes():
@@ -549,7 +545,6 @@ def sendMail(subscribed_usernames):
 
         for thread in threads:
             thread.join()
-
 
 
         print('Svi emailovi uspešno poslati.')
