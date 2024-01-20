@@ -298,6 +298,14 @@ def like_post(post_id):
 
         return jsonify({'message': 'Post like removed successfully', 'likes': post.likes})
 
+    # Check if the user has already disliked the post
+    existing_dislike = Dislike.query.filter_by(user_id=user_id, post_id=post_id).first()
+
+    if existing_dislike:
+        # If the user has already disliked the post, remove the dislike
+        db.session.delete(existing_dislike)
+        post.dislikes -= 1
+
     # Add a new like
     new_like = Like(user_id=user_id, post_id=post_id)
     db.session.add(new_like)
@@ -309,7 +317,7 @@ def like_post(post_id):
 
     return jsonify({'message': 'Post liked successfully', 'likes': post.likes})
 
-    
+
 @auth_blueprint.route('/postSection/<int:post_id>/dislike', methods=['POST'])
 def dislike_post(post_id):
     data = request.get_json()
@@ -332,6 +340,14 @@ def dislike_post(post_id):
         db.session.commit()
 
         return jsonify({'message': 'Post dislike removed successfully', 'dislikes': post.dislikes})
+
+    # Check if the user has already liked the post
+    existing_like = Like.query.filter_by(user_id=user_id, post_id=post_id).first()
+
+    if existing_like:
+        # If the user has already liked the post, remove the like
+        db.session.delete(existing_like)
+        post.likes -= 1
 
     # Add a new dislike
     new_dislike = Dislike(user_id=user_id, post_id=post_id)
