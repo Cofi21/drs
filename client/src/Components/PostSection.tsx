@@ -13,6 +13,7 @@ interface Post {
   commentNumber: number;
   locked: boolean;
   subscribed: boolean;
+  subscribed_usernames: string;
 }
 
 interface Comment {
@@ -189,31 +190,56 @@ useEffect(() => {
   
   const handleSubscribe = async (postId: number) => {
     try {
-      if (!user) {
-        console.warn('User is not logged in. Cannot toggle lock status.');
-        return;
-      }
-  
-      const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/subscribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        const updatedPosts = posts.map((post) =>
-          post.id === postId ? { ...post, subscribed: !post.subscribed } : post
-        );
-        setPosts(updatedPosts);
-      } else {
-        console.error('Failed to toggle lock status:', response.statusText);
-      }
+        if (!user) {
+            console.warn('User is not logged in. Cannot toggle lock status.');
+            return;
+        }
+                                    //@auth_blueprint.route('/postSection/<int:post_id>/subscribe/<int:user_id>', methods=['POST'])
+        const response = await fetch(`http://localhost:3003/auth/postSection/${postId}/subscribe/${user.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            const updatedPosts = posts.map((post) =>
+                post.id === postId ? {
+                    ...post,
+                    subscribed: !post.subscribed,
+                    subscribed_usernames: updateSubscribedUsernames(post, user?.username),
+                } : post
+            );
+            setPosts(updatedPosts);
+        } else {
+            console.error('Failed to toggle lock status:', response.statusText);
+        }
     } catch (error) {
-      console.error('Error toggling lock status:', error);
+        console.error('Error toggling lock status:', error);
     }
-  };
+};
+
   
+  const updateSubscribedUsernames = (post: Post, username: string | undefined): string => {
+    if (!post.subscribed_usernames) {
+      return username ? username : '';
+    }
+
+    const usernames = post.subscribed_usernames.split(',');
+
+    if (username && post.subscribed) {
+      // Add the username to the list
+      usernames.push(username);
+    } else if (username && !post.subscribed) {
+      // Remove the username from the list
+      const index = usernames.indexOf(username);
+      if (index !== -1) {
+        usernames.splice(index, 1);
+      }
+    }
+
+    return usernames.join(',');
+  };
   
   return ( 
     
@@ -259,7 +285,7 @@ useEffect(() => {
               {user && (
                 <>
                   <button className='button-delete-post' onClick={() => handleSubscribe(post.id)}>
-                  {post.subscribed ? 'Subscribe' : 'Unsubscribe'}
+                  {post.subscribed ? 'Unsubscribe' : 'Subscribe'}
                 </button>
                 </>
               )}

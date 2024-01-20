@@ -30,6 +30,7 @@ class Post(db.Model):
     subscribed = db.Column(db.Boolean, default=False)
     likes_relationship = db.relationship('Like', backref='post', lazy=True)
     dislikes_relationship = db.relationship('Dislike', backref='post', lazy=True, cascade="all, delete-orphan") 
+    subscribed_usernames = db.Column(db.String(255))
 
 class Comment(db.Model):
     __tablename__ = "comments"

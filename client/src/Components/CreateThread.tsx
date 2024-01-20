@@ -13,6 +13,7 @@ interface Post {
   commentNumber: number;
   locked: boolean;
   subscribed: boolean;
+  subscribed_usernames: string;
 }
 
 interface CreateThreadProps {
@@ -56,7 +57,8 @@ const CreateThread: React.FC<CreateThreadProps> = ({ addPost, currentUser }) => 
           dislikes: 0,
           commentNumber: 0,
           locked: false,
-          subscribed: false
+          subscribed: false,
+          subscribed_usernames: ""
         };
         console.info
         addPost(newPost);

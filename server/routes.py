@@ -12,11 +12,7 @@ smtp_port = 587
 smtp_username = 'forumdrs2023@gmail.com'
 smtp_password = 'hsyk fmse qrrc wyni'
 
-
-
 auth_blueprint = Blueprint('auth', __name__)
-
-
 
 @auth_blueprint.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True)
@@ -143,7 +139,8 @@ def create_post():
             dislikes=0,
             commentNumber=0,
             locked = False,
-            subscribed = False
+            subscribed = False,
+            subscribed_usernames = ""
         )
 
         db.session.add(new_post)
@@ -159,7 +156,8 @@ def create_post():
                         'likes': post.likes,
                         'dislikes': post.dislikes,
                         'locked': post.locked,
-                        'subscribed': post.subscribed
+                        'subscribed': post.subscribed,
+                        'subscribed_usernames' : post.subscribed_usernames
                         }
                         for post in posts]
 
@@ -184,7 +182,8 @@ def onload():
                        'dislikes': post.dislikes,
                        'commentNumber': post.commentNumber,
                        'locked': post.locked,
-                       'subscribed': post.subscribed
+                       'subscribed': post.subscribed,
+                       'subscribed_usernames' : post.subscribed_usernames
                        }
                       for post in posts]
 
@@ -195,26 +194,35 @@ def onload():
 #Promeniti ovaj comment GET i POST
 @auth_blueprint.route('/theme/<int:post_id>/comments', methods=['POST'])
 def post_comments(post_id):
-    
-        
+    try:
         data = request.get_json()
         print('Received data:', data)
-        subscribed_usernames = Post.query.filter_by(subscribed=True).with_entities(Post.userName).all()
+        post = Post.query.get(post_id)
 
-        # Create a new comment
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
+
+        # Dohvati pretplaćene korisničke adrese
+        subscribed_usernames = post.subscribed_usernames.split(',')
+
+        # Stvori novi komentar
         new_comment = Comment(content=data.get('content'), post_id=post_id, author=data.get('author'))
 
-        # Add the new comment to the database
+        # Dodaj novi komentar u bazu podataka
         db.session.add(new_comment)
         db.session.commit()
 
-        # Update the commentNumber for the associated post
-        post = Post.query.get_or_404(post_id)
+        # Ažuriraj commentNumber za povezani post
         post.commentNumber += 1
         db.session.commit()
+
+        # Pošalji e-mail na adrese pretplaćenih korisnika
         sendMail(subscribed_usernames)
 
-        return jsonify({'message': 'Comment added successfully'})
+        return jsonify({'message': 'Comment added successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+
 
 
 @auth_blueprint.route('/theme/<int:post_id>/comments', methods=['GET'])
@@ -445,22 +453,34 @@ def toggle_post_lock(post_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@auth_blueprint.route('/postSection/<int:post_id>/subscribe', methods=['POST'])
-def subscribe(post_id):
+@auth_blueprint.route('/postSection/<int:post_id>/subscribe/<int:user_id>', methods=['POST'])
+def subscribe(post_id, user_id):
     try:
         post = Post.query.get(post_id)
-        if not post:
-            return jsonify({'error': 'Post not found'}), 404
+        user = User.query.get(user_id)
 
-        # Promenite vrednost polja 'locked' na suprotnu vrednost
+        if not post or not user:
+            return jsonify({'error': 'Post or user not found'}), 404
+
         post.subscribed = not post.subscribed
+
+        if post.subscribed:
+            if post.subscribed_usernames:
+                post.subscribed_usernames += ',' + user.email
+            else:
+                post.subscribed_usernames = user.email
+        else:
+            if post.subscribed_usernames:
+                usernames = post.subscribed_usernames.split(',')
+                usernames.remove(user.email)
+                post.subscribed_usernames = ','.join(usernames)
+
         db.session.commit()
-
-
 
         return jsonify({'success': 'Post lock status updated'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+
 
 @auth_blueprint.route('/themes/search', methods=['GET'])
 def search_themes():
@@ -490,16 +510,15 @@ def search_themes():
         print("Error searching themes:", str(e))
         return jsonify({'error': 'Internal Server Error'}), 500
 
-def send_mail_to_receiver(receiver_email):
+def send_mail_to_receiver(sender_email, receiver_email):
     try:
-        
         message = MIMEMultipart()
-        message['From'] = "forumdrs2023@gmail.com"
+        message['From'] = sender_email
         message['To'] = receiver_email
-        message['Subject'] = 'Test Email Subject'
+        message['Subject'] = 'Novi komentar na temi koju pratite'
 
  
-        body = 'Uspesno poslat mail.'
+        body = 'Postovani, unet je novi komentar na temi koju pratite.'
         message.attach(MIMEText(body, 'plain'))
 
        
@@ -517,25 +536,21 @@ def send_mail_to_receiver(receiver_email):
     except Exception as e:
         print(f'Došlo je do greške prilikom slanja emaila na {receiver_email}: {e}')
 
-def sendMail(receivers):
+def sendMail(subscribed_usernames):
     try:
         sender_email = 'forumdrs2023@gmail.com'
 
-     
-        receiver_emails = receivers.split()
-
-       
         threads = []
 
-        for receiver_email in receiver_emails:
-            
-            thread = threading.Thread(target=send_mail_to_receiver, args=(sender_email, receiver_email))
+        for receiver_username in subscribed_usernames:
+            thread = threading.Thread(target=send_mail_to_receiver, args=(sender_email, receiver_username))
             thread.start()
             threads.append(thread)
 
-       
         for thread in threads:
             thread.join()
+
+
 
         print('Svi emailovi uspešno poslati.')
     except Exception as e:
