@@ -478,33 +478,7 @@ def subscribe(post_id, user_id):
     except Exception as e:
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
-@auth_blueprint.route('/themes/search', methods=['GET'])
-def search_themes():
-    try:
-        title = request.args.get('title', '')
-        # Assuming 'title' is the column you want to search
-        themes = Post.query.filter(Post.title.ilike(f"%{title}%")).all()
 
-        # Convert themes to a list of dictionaries
-        themes_list = [
-            {
-                'id': theme.id,
-                'title': theme.title,
-                'content': theme.content,
-                'userName': theme.userName,
-                'likes': theme.likes,
-                'dislikes': theme.dislikes,
-                'commentNumber': theme.commentNumber,
-                'locked': theme.locked,
-            }
-            for theme in themes
-        ]
-
-        return jsonify(themes_list)
-
-    except Exception as e:
-        print("Error searching themes:", str(e))
-        return jsonify({'error': 'Internal Server Error'}), 500
 
 def send_mail_to_receiver(sender_email, receiver_email):
     try:
@@ -514,7 +488,7 @@ def send_mail_to_receiver(sender_email, receiver_email):
         message['Subject'] = 'Novi komentar na temi koju pratite'
 
  
-        body = 'Postovani, unet je novi komentar na temi koju pratite.'
+        body = "Neko je upravo komentarisao temu koju pratis"
         message.attach(MIMEText(body, 'plain'))
 
        
@@ -535,7 +509,7 @@ def send_mail_to_receiver(sender_email, receiver_email):
 def sendMail(subscribed_usernames):
     try:
         sender_email = 'forumdrs2023@gmail.com'
-
+        
         threads = []
 
         for receiver_username in subscribed_usernames:

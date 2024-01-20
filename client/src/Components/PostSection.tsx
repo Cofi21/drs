@@ -74,7 +74,7 @@ useEffect(() => {
     fetchPosts();
     //posts.forEach((post) => fetchComments(post.id));
     
-    // Set up polling interval to fetch posts every 5 seconds
+    
     const intervalId = setInterval(fetchPosts, 500);
 //
     // Clean up the interval on component unmount
@@ -186,7 +186,7 @@ useEffect(() => {
   const handleSubscribe = async (postId: number) => {
     try {
         if (!user) {
-            console.warn('User is not logged in. Cannot toggle lock status.');
+            console.warn('User is not logged in. Cannot subscribe.');
             return;
         }
                                     //@auth_blueprint.route('/postSection/<int:post_id>/subscribe/<int:user_id>', methods=['POST'])

@@ -62,22 +62,7 @@ function ThemePage() {
     };
   
     // Function to fetch comments
-    const fetchComments = async (postId: number) => {
-      try {
-        const response = await fetch(`http://localhost:3003/auth/theme/${postId}/comments`);
-        const data: Comment[] = await response.json();
-  
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postId]: data.map((comment: Comment) => ({
-            ...comment,
-            author: comment.author || (user?.username ?? ''),
-          })),
-        }));
-      } catch (error) {
-        console.error('Error fetching comments:', error);
-      }
-    };
+    
   
     // Initial fetch
     fetchPostData();
