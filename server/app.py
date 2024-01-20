@@ -7,6 +7,7 @@ from database import db
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins='http://localhost:5173')
+CORS(app, origins=["https://mail.google.com"])
 app.config['CORS_HEADERS'] = 'Content-Type'
 posts=[]
 DATABASE_URI = "mysql://root:my-secret-pw@mysql/maindb"

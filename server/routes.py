@@ -215,9 +215,10 @@ def post_comments(post_id):
         # Ažuriraj commentNumber za povezani post
         post.commentNumber += 1
         db.session.commit()
+        new_comment.likes
 
         # Pošalji e-mail na adrese pretplaćenih korisnika
-        sendMail(subscribed_usernames)
+        sendMail(subscribed_usernames, new_comment)
 
         return jsonify({'message': 'Comment added successfully'}), 200
     except Exception as e:
@@ -480,40 +481,40 @@ def subscribe(post_id, user_id):
 
 
 
-def send_mail_to_receiver(sender_email, receiver_email):
+def send_mail_to_receiver(sender_email, receiver_email, comment):
     try:
         message = MIMEMultipart()
         message['From'] = sender_email
         message['To'] = receiver_email
         message['Subject'] = 'Novi komentar na temi koju pratite'
 
- 
-        body = "Neko je upravo komentarisao temu koju pratis"
+        # Dodajte informacije o lajkovima i dislajkovima u tijelo poruke
+        body = f'Author: {comment.author}\n\nContent: {comment.content}\n\nLikes: {comment.likes}\nDislikes: {comment.dislikes}'
+
+        # like_url = f'http://localhost:3003/auth/postSection/{comment.post_id}/comments/{comment.id}/like'
+        # dislike_url = f'http://localhost:3003/auth/postSection/{comment.post_id}/comments/{comment.id}/dislike'
+        
+        # body += f'\n\nLike: {like_url}\nDislike: {dislike_url}'
         message.attach(MIMEText(body, 'plain'))
 
-       
         with smtplib.SMTP(smtp_server, smtp_port) as server:
-            
             server.starttls()
-
-      
             server.login(smtp_username, smtp_password)
-
-            
             server.sendmail(sender_email, receiver_email, message.as_string())
 
         print(f'Email uspešno poslat na {receiver_email}.')
     except Exception as e:
         print(f'Došlo je do greške prilikom slanja emaila na {receiver_email}: {e}')
 
-def sendMail(subscribed_usernames):
+
+def sendMail(subscribed_usernames, comment):
     try:
         sender_email = 'forumdrs2023@gmail.com'
         
         threads = []
 
         for receiver_username in subscribed_usernames:
-            thread = threading.Thread(target=send_mail_to_receiver, args=(sender_email, receiver_username))
+            thread = threading.Thread(target=lambda: send_mail_to_receiver(sender_email, receiver_username, comment))
             thread.start()
             threads.append(thread)
 
