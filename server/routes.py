@@ -266,8 +266,20 @@ def delete_post(post_id):
 
             # Check if there are comments related to the post
             if post_to_delete.comments:
-                # Delete all comments
                 for comment in post_to_delete.comments:
+                    # Check if there are likes related to the comment
+                    if comment.likes_relationship:
+                        # Delete all likes for the comment
+                        for like in comment.likes_relationship:
+                            db.session.delete(like)
+
+                    # Check if there are dislikes related to the comment
+                    if comment.dislikes_relationship:
+                        # Delete all dislikes for the comment
+                        for dislike in comment.dislikes_relationship:
+                            db.session.delete(dislike)
+
+                    # Delete the comment
                     db.session.delete(comment)
 
             # Delete the post
@@ -481,6 +493,12 @@ def delete_comment(post_id, comment_id):
         comment_to_delete = Comment.query.get(comment_id)
 
         if comment_to_delete:
+            # Delete associated comment_like records
+            CommentLike.query.filter_by(comment_id=comment_id).delete()
+
+            # Delete associated comment_dislike records
+            CommentDislike.query.filter_by(comment_id=comment_id).delete()
+
             # Delete the comment
             db.session.delete(comment_to_delete)
 
