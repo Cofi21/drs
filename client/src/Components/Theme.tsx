@@ -28,7 +28,6 @@ interface Comment {
 
 function ThemePage() {
   const { postId } = useParams();
-  console.log(postId);
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [newComment, setNewComment] = useState('');
@@ -146,17 +145,12 @@ function ThemePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
+        },body: JSON.stringify({ user_id: user.id }),
       });
   
       if (response.ok) {
         // Update the local state accordingly
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postId]: prevComments[postId].map((comment) =>
-            comment.id === commentId ? { ...comment, dislikes: comment.dislikes + 1 } : comment
-          ),
-        }));
+        
       } else {
         console.error('Failed to dislike comment:', response.statusText);
       }
@@ -177,17 +171,12 @@ function ThemePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
+        },body: JSON.stringify({ user_id: user.id }),
       });
   
       if (response.ok) {
         // Update the local state accordingly
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postId]: prevComments[postId].map((comment) =>
-            comment.id === commentId ? { ...comment, likes: comment.likes + 1 } : comment
-          ),
-        }));
+        
       } else {
         console.error('Failed to like comment:', response.statusText);
       }

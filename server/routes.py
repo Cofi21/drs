@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect,session
 from flask_cors import cross_origin
-from database import db, User,Post,Comment,Like,Dislike
+from database import db, User,Post,Comment,Like,Dislike,CommentLike,CommentDislike
 
 import threading
 import smtplib
@@ -392,23 +392,87 @@ def get_post_by_id(post_id):
 
 @auth_blueprint.route('/postSection/<int:post_id>/comments/<int:comment_id>/like', methods=['POST'])
 def like_comment(comment_id,post_id):
+    data = request.get_json()
+
+    # Extract user information from the request payload
+    user_id = data.get('user_id')  # Assuming user_id is included in the request payload
+
+    if not user_id:
+        return jsonify({'error': 'User ID not provided'}), 400
+
     comment = Comment.query.get_or_404(comment_id)
 
-    # Increment likes for the comment
+    # Check if the user has already liked the comment
+    existing_like = CommentLike.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if existing_like:
+        # If the user has already liked the comment, remove the like
+        db.session.delete(existing_like)
+        comment.likes -= 1
+        db.session.commit()
+
+        return jsonify({'message': 'Comment like removed successfully', 'likes': comment.likes})
+
+    # Check if the user has already disliked the comment
+    existing_dislike = CommentDislike.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if existing_dislike:
+        # If the user has already disliked the comment, remove the dislike
+        db.session.delete(existing_dislike)
+        comment.dislikes -= 1
+
+    # Add a new like
+    new_like = CommentLike(user_id=user_id, comment_id=comment_id)
+    db.session.add(new_like)
+
+    # Increment the like count for the comment
     comment.likes += 1
+
     db.session.commit()
 
-    return jsonify({'message': 'Comment liked successfully', 'likes': comment.likes}), 200
+    return jsonify({'message': 'Comment liked successfully', 'likes': comment.likes})
     
 @auth_blueprint.route('/postSection/<int:post_id>/comments/<int:comment_id>/dislike', methods=['POST'])
 def dislike_comment(post_id, comment_id):
+    data = request.get_json()
+
+    # Extract user information from the request payload
+    user_id = data.get('user_id')  # Assuming user_id is included in the request payload
+
+    if not user_id:
+        return jsonify({'error': 'User ID not provided'}), 400
+
     comment = Comment.query.get_or_404(comment_id)
 
-    # Increment dislikes for the comment
+    # Check if the user has already disliked the comment
+    existing_dislike = CommentDislike.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if existing_dislike:
+        # If the user has already disliked the comment, remove the dislike
+        db.session.delete(existing_dislike)
+        comment.dislikes -= 1
+        db.session.commit()
+
+        return jsonify({'message': 'Comment dislike removed successfully', 'dislikes': comment.dislikes})
+
+    # Check if the user has already liked the comment
+    existing_like = CommentLike.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if existing_like:
+        # If the user has already liked the comment, remove the like
+        db.session.delete(existing_like)
+        comment.likes -= 1
+
+    # Add a new dislike
+    new_dislike = CommentDislike(user_id=user_id, comment_id=comment_id)
+    db.session.add(new_dislike)
+
+    # Increment the dislike count for the comment
     comment.dislikes += 1
+
     db.session.commit()
 
-    return jsonify({'message': 'Comment disliked successfully', 'dislikes': comment.dislikes}), 200
+    return jsonify({'message': 'Comment disliked successfully', 'dislikes': comment.dislikes})
 
 @auth_blueprint.route('/postSection/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
 def delete_comment(post_id, comment_id):

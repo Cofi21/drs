@@ -40,6 +40,9 @@ class Comment(db.Model):
     likes = db.Column(db.Integer, default=0)
     dislikes = db.Column(db.Integer, default=0)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    likes_relationship = db.relationship('CommentLike', backref='comment', lazy=True)
+    dislikes_relationship = db.relationship('CommentDislike', backref='comment', lazy=True)
+
 
 class Like(db.Model):
     __tablename__ = "likes"
@@ -52,3 +55,15 @@ class Dislike(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+
+class CommentLike(db.Model):
+    __tablename__ = "comment_likes"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
+
+class CommentDislike(db.Model):
+    __tablename__ = "comment_dislikes"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
